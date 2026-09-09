@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #1a1a1a;
+
+  --color-surface: #f4f4f5;
+  --color-surface-hover: #ececee;
+  --color-border: #d9d9dc;
+  --color-muted: #6b6b70;
+  --color-ink: #1a1a1a;
+  --color-primary: #1f1f1f;
+  --color-primary-hover: #050505;
+  --color-footer: #1a1a1a;
+
+  /* ดึงมาจาก Figma จริง (get_design_context) ตอนทำ Task 1 — โทนสีเสริมของหน้า POS */
+  --color-sunken: #fafafa;
+  --color-subtle: #ebebed;
+  --color-faint: #9a9aa0;
+  --color-default: #d4d4d8;
+
+  --color-status-pending: #b45309;
+  --color-status-pending-bg: #fef3c7;
+  --color-status-paid: #1d4ed8;
+  --color-status-paid-bg: #dbeafe;
+  --color-status-processing: #7c3aed;
+  --color-status-processing-bg: #ede9fe;
+  --color-status-shipped: #0f766e;
+  --color-status-shipped-bg: #ccfbf1;
+  --color-status-delivered: #15803d;
+  --color-status-delivered-bg: #dcfce7;
+  --color-status-cancelled: #b91c1c;
+  --color-status-cancelled-bg: #fee2e2;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  /* โหลดฟอนต์จริงผ่าน next/font/google แล้ว (ดู layout.tsx) — ตัวแปร --font-prompt
+     และ --font-plex-mono มาจาก CSS variable ที่ next/font สร้างให้บน <html> */
+  --font-sans: var(--font-prompt), ui-sans-serif, "Noto Sans Thai", "Segoe UI",
+    "Helvetica Neue", Arial, sans-serif;
+  /* ตัวเลข (ราคา/จำนวน/ยอดรวม) ทุกจุดใช้ mono ตามดีไซน์ POS ใน Figma */
+  --font-mono: var(--font-plex-mono), ui-monospace, "SFMono-Regular", Menlo, Consolas,
+    monospace;
+
+  --color-surface: var(--color-surface);
+  --color-surface-hover: var(--color-surface-hover);
+  --color-border: var(--color-border);
+  --color-muted: var(--color-muted);
+  --color-ink: var(--color-ink);
+  --color-primary: var(--color-primary);
+  --color-primary-hover: var(--color-primary-hover);
+  --color-footer: var(--color-footer);
+  --color-sunken: var(--color-sunken);
+  --color-subtle: var(--color-subtle);
+  --color-faint: var(--color-faint);
+  --color-default: var(--color-default);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+@keyframes cart-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.cart-slide-in {
+  animation: cart-slide-in 0.28s ease-out;
+}

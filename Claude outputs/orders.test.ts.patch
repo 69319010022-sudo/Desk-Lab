@@ -1,0 +1,8 @@
+// Lines 23-24: Replace
+// BEFORE:
+//   const mockSupabase: any = {
+//   const mockCreateClient: any = jest.fn
+
+// AFTER:
+//   const mockSupabase: Record<string, unknown> = {
+//   const mockCreateClient: jest.Mock = jest.fn
