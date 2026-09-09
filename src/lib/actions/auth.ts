@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
+import { fireAndForgetLog } from "@/lib/actions/logging";
 
 // Server Actions สำหรับสมัครสมาชิก/เข้าสู่ระบบ/ออกจากระบบ ผ่าน Supabase Auth จริง
 // ใช้คู่กับ useActionState ฝั่ง Client Component (ดู LoginForm.tsx, register/page.tsx)
@@ -52,10 +53,15 @@ export async function signInAction(
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
     return { error: mapAuthError(error.message) };
+  }
+
+  // Log successful sign in
+  if (data.user) {
+    fireAndForgetLog(data.user.id, "auth.signed_in", "users", data.user.id, { email });
   }
 
   // ต้อง revalidate เพราะ Navbar (ใน layout) อ่านสถานะล็อกอินไว้แล้วตอน render ครั้งก่อน
@@ -115,6 +121,11 @@ export async function signUpAction(
     return { error: mapAuthError(error.message) };
   }
 
+  // Log successful sign up
+  if (data.user) {
+    fireAndForgetLog(data.user.id, "auth.signed_up", "users", data.user.id, { email, username });
+  }
+
   // ถ้าโปรเจกต์ Supabase เปิดบังคับให้ยืนยันอีเมลก่อน จะยังไม่มี session ตอนนี้
   // (data.session เป็น null) ต้องพาไปหน้า login พร้อมข้อความแจ้งเตือนแทน
   if (!data.session) {
@@ -127,18 +138,27 @@ export async function signUpAction(
 
 export async function signOutAction() {
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
   await supabase.auth.signOut();
+
+  // Log sign out
+  if (user) {
+    fireAndForgetLog(user.id, "auth.signed_out", "users", user.id);
+  }
+
   revalidatePath("/", "layout");
   redirect("/login");
 }
 
-// หมายเหตุ: การขอลิงก์ตั้งรหัสผ่านใหม่ (resetPasswordForEmail) ย้ายไปเรียกฝั่ง client แล้ว
-// (ดู ForgotPasswordForm.tsx) ไม่ได้ทำเป็น Server Action ที่นี่อีกต่อไป — เพราะเจอบั๊กจริง:
-// @supabase/ssr เวอร์ชันนี้ ฝั่งเซิร์ฟเวอร์ (createServerClient) เขียนคุกกี้จริงก็ต่อเมื่อมี auth
-// event (SIGNED_IN/TOKEN_REFRESHED/...) เกิดขึ้นเท่านั้น แต่การขอลิงก์รีเซ็ตรหัสผ่านไม่ทำให้เกิด
-// event พวกนี้เลย (ยังไม่มี session) — PKCE code_verifier ที่ต้องใช้ตอนแลก code ทีหลัง จึงถูก
-// สร้างแต่ไม่เคยถูกเขียนเป็นคุกกี้จริง หายไปเงียบๆ ทุกครั้งไม่มีข้อยกเว้น ทำให้แลก code ไม่ได้เสมอ
-// (error "PKCE code verifier not found in storage") — ฝั่ง browser ไม่มีปัญหานี้ เขียนคุกกี้ทันที
+// หมายเหตุ: การขอลิงก์ตั้งรหัสผ่านใหม่ (resetPasswordForEmail) เรียกจากฝั่ง client แทน
+// (ดู ForgotPasswordForm.tsx) ไม่ได้ทำเป็น Server Action ที่นี่ — **แก้ไขทฤษฎีเดิม (2026-09-05)**:
+// ก่อนเคยเข้าใจผิดว่า @supabase/ssr เขียนคุกกี้ฝั่งเซิร์ฟเวอร์เฉพาะตอนมี auth event เท่านั้น แต่
+// ตรวจสอบซอร์สโค้ดจริง (@supabase/ssr@0.12.5) แล้วพบว่าไม่จริง — เวอร์ชันนี้เขียนคุกกี้ PKCE
+// code-verifier ทันทีทั้งฝั่ง client และ server สาเหตุจริงของ error "PKCE code verifier not found
+// in storage" ที่เคยเจอคือ**ทดสอบข้ามเบราว์เซอร์** (ขอลิงก์จากเบราว์เซอร์หนึ่ง แล้วกดลิงก์ในอีเมล
+// จากอีกเบราว์เซอร์) ซึ่งเป็นพฤติกรรมความปลอดภัยที่ตั้งใจของ PKCE ไม่ใช่บั๊ก — ทดสอบด้วยเบราว์เซอร์
+// เดียวกันทั้งสองขั้นตอนแล้วใช้งานได้ปกติ (ยืนยันแล้ว 2026-09-05)
 
 export type UpdatePasswordState = { error?: string } | null;
 
@@ -159,9 +179,16 @@ export async function updatePasswordAction(
   }
 
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
   const { error } = await supabase.auth.updateUser({ password });
   if (error) {
     return { error: mapAuthError(error.message) };
+  }
+
+  // Log password change
+  if (user) {
+    fireAndForgetLog(user.id, "auth.password_changed", "users", user.id);
   }
 
   // ออกจากระบบหลังตั้งรหัสผ่านใหม่สำเร็จ ให้ผู้ใช้ล็อกอินใหม่ด้วยรหัสผ่านใหม่อีกที (ชัดเจนกว่า)
@@ -197,6 +224,12 @@ export async function confirmPasswordResetAction(
   if (error) {
     console.error("exchangeCodeForSession ล้มเหลว:", error.message);
     redirect("/forgot-password?error=invalid_link");
+  }
+
+  // Log password reset confirmation
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user) {
+    fireAndForgetLog(user.id, "auth.password_changed", "users", user.id, { source: "password_reset" });
   }
 
   redirect(next);
