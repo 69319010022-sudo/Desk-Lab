@@ -1,0 +1,39 @@
+meta {
+  name: Categories - Anon Insert Blocked
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{supabase_url}}/rest/v1/categories
+  body: json
+  auth: none
+}
+
+headers {
+  apikey: {{anon_key}}
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "should-not-be-created"
+  }
+}
+
+tests {
+  test("status is 401 (RLS policy violation)", function() {
+    expect(res.getStatus()).to.equal(401);
+  });
+  test("Postgres RLS error code 42501", function() {
+    expect(res.getBody().code).to.equal("42501");
+  });
+}
+
+docs {
+  Nobody (not even logged-in customers) may write to categories from
+  the client - only reads are allowed. Verified live against the
+  real project: an anonymous INSERT returns
+  401 {"code":"42501", message: "new row violates row-level
+  security policy for table \"categories\""}.
+}

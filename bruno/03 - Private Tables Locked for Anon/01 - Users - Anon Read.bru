@@ -1,0 +1,32 @@
+meta {
+  name: Users - Anon Read
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{supabase_url}}/rest/v1/users?select=*
+  body: none
+  auth: none
+}
+
+headers {
+  apikey: {{anon_key}}
+}
+
+tests {
+  test("status is 200 (not an error)", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  test("no rows leaked", function() {
+    expect(res.getBody()).to.deep.equal([]);
+  });
+}
+
+docs {
+  Important nuance: RLS does NOT turn this into an error response.
+  anon/authenticated roles have base table GRANTs, so PostgREST still
+  returns 200 - RLS just silently filters every row out because there
+  is no policy granting anon access to any row. Verified live: 200
+  with []. A 4xx here would actually be the surprising result.
+}

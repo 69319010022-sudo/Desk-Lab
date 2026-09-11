@@ -1,0 +1,30 @@
+meta {
+  name: User A Read User B Addresses
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{supabase_url}}/rest/v1/addresses?select=*&user_id=eq.{{user_id_b}}
+  body: none
+  auth: none
+}
+
+headers {
+  apikey: {{anon_key}}
+  Authorization: Bearer {{access_token_a}}
+}
+
+tests {
+  test("status is 200, but zero rows returned", function() {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody()).to.deep.equal([]);
+  });
+}
+
+docs {
+  Explicitly asking for someone else's address by their user_id.
+  The query itself is well-formed; RLS is what silently returns
+  nothing instead of an error. Requires "Sign In Test User B" to have
+  run first (needs user_id_b).
+}

@@ -1,0 +1,47 @@
+meta {
+  name: Orders - Create Own (fixture)
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{supabase_url}}/rest/v1/orders
+  body: json
+  auth: none
+}
+
+headers {
+  apikey: {{anon_key}}
+  Authorization: Bearer {{access_token_a}}
+  Content-Type: application/json
+  Prefer: return=representation
+}
+
+body:json {
+  {
+    "user_id": "{{user_id_a}}",
+    "address_id": {{address_id_a}},
+    "order_status": "pending",
+    "total_amount": 100
+  }
+}
+
+script:post-response {
+  const rows = res.getBody();
+  if (Array.isArray(rows) && rows[0]) {
+    bru.setEnvVar("order_id_a", rows[0].id);
+  }
+}
+
+tests {
+  test("status is 201, created as pending", function() {
+    expect(res.getStatus()).to.equal(201);
+    expect(res.getBody()[0].order_status).to.equal("pending");
+  });
+}
+
+docs {
+  Fixture for folder 06 (the pending -> paid / pending -> cancelled
+  boundary tests). Run "Addresses - Create Own" first so
+  address_id_a is set - orders.address_id is a real foreign key.
+}

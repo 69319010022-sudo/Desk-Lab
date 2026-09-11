@@ -1,0 +1,39 @@
+meta {
+  name: Orders - Self Update to cancelled Allowed
+  type: http
+  seq: 2
+}
+
+patch {
+  url: {{supabase_url}}/rest/v1/orders?id=eq.{{order_id_a}}
+  body: json
+  auth: none
+}
+
+headers {
+  apikey: {{anon_key}}
+  Authorization: Bearer {{access_token_a}}
+  Content-Type: application/json
+  Prefer: return=representation
+}
+
+body:json {
+  {
+    "order_status": "cancelled"
+  }
+}
+
+tests {
+  test("status is 200, order is now cancelled", function() {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody()[0].order_status).to.equal("cancelled");
+  });
+}
+
+docs {
+  Positive control for the previous request - proves the policy isn't
+  blocking everything, only the disallowed transitions. pending ->
+  cancelled is the one self-service transition orders_update_own_cancel
+  explicitly allows (this is what CancelOrderButton uses in the app).
+  Verified live: 200 with the updated row.
+}

@@ -1,0 +1,30 @@
+meta {
+  name: Categories - Anon Read
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{supabase_url}}/rest/v1/categories?select=*
+  body: none
+  auth: none
+}
+
+headers {
+  apikey: {{anon_key}}
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  test("returns rows", function() {
+    expect(res.getBody().length).to.be.above(0);
+  });
+}
+
+docs {
+  Categories has no write policy but a full public read policy -
+  anyone (even logged-out) should see every category. Verified live:
+  200 with 8 rows.
+}

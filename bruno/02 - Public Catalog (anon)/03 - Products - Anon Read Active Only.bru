@@ -1,0 +1,31 @@
+meta {
+  name: Products - Anon Read Active Only
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{supabase_url}}/rest/v1/products?select=*
+  body: none
+  auth: none
+}
+
+headers {
+  apikey: {{anon_key}}
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  test("every row is_active = true", function() {
+    const rows = res.getBody();
+    rows.forEach((p) => expect(p.is_active).to.equal(true));
+  });
+}
+
+docs {
+  products_select_active_public policy only exposes rows where
+  is_active = true - a deactivated/discontinued product should never
+  appear here even though it still physically exists in the table.
+}

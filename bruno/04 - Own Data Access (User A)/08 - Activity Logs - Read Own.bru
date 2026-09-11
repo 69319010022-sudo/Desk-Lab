@@ -1,0 +1,32 @@
+meta {
+  name: Activity Logs - Read Own
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{supabase_url}}/rest/v1/activity_logs?select=*
+  body: none
+  auth: none
+}
+
+headers {
+  apikey: {{anon_key}}
+  Authorization: Bearer {{access_token_a}}
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  test("every row belongs to me", function() {
+    const rows = res.getBody();
+    const myId = bru.getEnvVar("user_id_a");
+    rows.forEach((r) => expect(r.user_id).to.equal(myId));
+  });
+}
+
+docs {
+  Run "Activity Logs - Insert Own" first so there's at least one row
+  to see.
+}

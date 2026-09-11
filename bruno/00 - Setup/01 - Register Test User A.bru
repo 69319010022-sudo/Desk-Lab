@@ -1,0 +1,37 @@
+meta {
+  name: Register Test User A
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{supabase_url}}/auth/v1/signup
+  body: json
+  auth: none
+}
+
+headers {
+  apikey: {{anon_key}}
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "email": "{{test_email_a}}",
+    "password": "{{test_password_a}}",
+    "data": { "name": "bruno_test_a" }
+  }
+}
+
+tests {
+  test("signup succeeded or user already exists", function() {
+    expect([200, 422]).to.include(res.getStatus());
+  });
+}
+
+docs {
+  Run this once to create Test User A. On a second run it returns 422
+  "User already registered" - that's expected and fine, not a failure.
+  Email confirmation is disabled on this project, so the account is
+  usable for sign-in immediately.
+}

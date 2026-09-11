@@ -1,0 +1,44 @@
+meta {
+  name: Payments - Authenticated Insert Blocked
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{supabase_url}}/rest/v1/payments
+  body: json
+  auth: none
+}
+
+headers {
+  apikey: {{anon_key}}
+  Authorization: Bearer {{access_token_a}}
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "order_id": {{order_id_a}},
+    "payment_method": "cod",
+    "amount": 100
+  }
+}
+
+tests {
+  test("status is 403 - no insert policy for authenticated", function() {
+    expect(res.getStatus()).to.equal(403);
+  });
+}
+
+docs {
+  payments has a read-only policy for authenticated (payments_select_
+  via_own_order) and NO insert/update policy at all - every payment
+  row must be written by the service-role client
+  (src/lib/payments/opn.ts / src/lib/actions/orders.ts), never
+  directly by a logged-in customer's own token, even for their own
+  order. Verified live: 403 (note this differs from the anon-INSERT-
+  into-categories case in folder 02, which came back 401 - anon vs.
+  authenticated get different status codes for the same kind of RLS
+  rejection, both are "blocked", just via a different PostgREST code
+  path).
+}

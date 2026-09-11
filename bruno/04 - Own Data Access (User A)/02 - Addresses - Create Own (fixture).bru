@@ -1,0 +1,51 @@
+meta {
+  name: Addresses - Create Own (fixture)
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{supabase_url}}/rest/v1/addresses
+  body: json
+  auth: none
+}
+
+headers {
+  apikey: {{anon_key}}
+  Authorization: Bearer {{access_token_a}}
+  Content-Type: application/json
+  Prefer: return=representation
+}
+
+body:json {
+  {
+    "user_id": "{{user_id_a}}",
+    "label": "bruno-test",
+    "recipient_name": "Bruno Test A",
+    "phone": "0812345678",
+    "address_line": "1 Test Rd",
+    "subdistrict": "x",
+    "district": "x",
+    "province": "x",
+    "postal_code": "10000"
+  }
+}
+
+script:post-response {
+  const rows = res.getBody();
+  if (Array.isArray(rows) && rows[0]) {
+    bru.setEnvVar("address_id_a", rows[0].id);
+  }
+}
+
+tests {
+  test("status is 201", function() {
+    expect(res.getStatus()).to.equal(201);
+  });
+}
+
+docs {
+  Fixture step, not itself a security test - creates an address owned
+  by Test User A so folder 05/06 have something real to read/update.
+  Safe to re-run; it just adds another test address row each time.
+}

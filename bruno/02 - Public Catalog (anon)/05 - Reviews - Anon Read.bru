@@ -1,0 +1,27 @@
+meta {
+  name: Reviews - Anon Read
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{supabase_url}}/rest/v1/reviews?select=*
+  body: none
+  auth: none
+}
+
+headers {
+  apikey: {{anon_key}}
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+}
+
+docs {
+  Public read. Currently 0 rows in the real project (no review-writing
+  UI shipped yet) - 200 with an empty array is the correct result,
+  not a failure.
+}

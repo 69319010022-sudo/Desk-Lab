@@ -1,0 +1,32 @@
+meta {
+  name: Addresses - Read Own
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{supabase_url}}/rest/v1/addresses?select=*
+  body: none
+  auth: none
+}
+
+headers {
+  apikey: {{anon_key}}
+  Authorization: Bearer {{access_token_a}}
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  test("every row belongs to me", function() {
+    const rows = res.getBody();
+    const myId = bru.getEnvVar("user_id_a");
+    rows.forEach((r) => expect(r.user_id).to.equal(myId));
+  });
+}
+
+docs {
+  addresses_all_own (cmd=ALL). Run step 02 first so there is at least
+  one address to see.
+}

@@ -1,0 +1,28 @@
+meta {
+  name: Orders - Anon Read
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{supabase_url}}/rest/v1/orders?select=*
+  body: none
+  auth: none
+}
+
+headers {
+  apikey: {{anon_key}}
+}
+
+tests {
+  test("status is 200, no rows leaked", function() {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody()).to.deep.equal([]);
+  });
+}
+
+docs {
+  Order history (14 real rows in the table right now) must be
+  completely invisible to a logged-out request. Same reasoning as
+  Users - Anon Read.
+}

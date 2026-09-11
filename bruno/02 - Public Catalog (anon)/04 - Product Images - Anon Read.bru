@@ -1,0 +1,26 @@
+meta {
+  name: Product Images - Anon Read
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{supabase_url}}/rest/v1/product_images?select=*&limit=5
+  body: none
+  auth: none
+}
+
+headers {
+  apikey: {{anon_key}}
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+}
+
+docs {
+  Same public-read pattern as categories/products - image URLs need
+  to render on the storefront for logged-out visitors too.
+}

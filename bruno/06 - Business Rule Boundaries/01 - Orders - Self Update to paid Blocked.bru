@@ -1,0 +1,40 @@
+meta {
+  name: Orders - Self Update to paid Blocked
+  type: http
+  seq: 1
+}
+
+patch {
+  url: {{supabase_url}}/rest/v1/orders?id=eq.{{order_id_a}}
+  body: json
+  auth: none
+}
+
+headers {
+  apikey: {{anon_key}}
+  Authorization: Bearer {{access_token_a}}
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "order_status": "paid"
+  }
+}
+
+tests {
+  test("status is 403 - customers cannot self-approve payment", function() {
+    expect(res.getStatus()).to.equal(403);
+  });
+}
+
+docs {
+  This is the core "payment confirmation must go through service
+  role" guarantee (see orders_update_own_cancel policy). Unlike the
+  cross-user PATCH in folder 05, this row IS owned by the caller and
+  DOES match the USING clause (pending, own order) - it fails the
+  WITH CHECK instead, because "paid" is not in the allowed target set
+  {pending, cancelled}. Verified live against a real order this
+  collection created: 403. Run "Orders - Create Own (fixture)" in
+  folder 04 first so order_id_a is set.
+}

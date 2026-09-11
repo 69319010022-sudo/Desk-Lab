@@ -1,0 +1,6 @@
+{
+  "version": "1",
+  "name": "DeskLab API - RLS Audit",
+  "type": "collection",
+  "ignore": ["node_modules", ".git"]
+}

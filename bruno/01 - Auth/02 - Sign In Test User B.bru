@@ -1,0 +1,43 @@
+meta {
+  name: Sign In Test User B
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{supabase_url}}/auth/v1/token?grant_type=password
+  body: json
+  auth: none
+}
+
+headers {
+  apikey: {{anon_key}}
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "email": "{{test_email_b}}",
+    "password": "{{test_password_b}}"
+  }
+}
+
+script:post-response {
+  const data = res.getBody();
+  bru.setEnvVar("access_token_b", data.access_token);
+  bru.setEnvVar("user_id_b", data.user.id);
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  test("received an access token", function() {
+    expect(res.getBody()).to.have.property("access_token");
+  });
+}
+
+docs {
+  Run once before folder 05 (cross-user tests) - captures
+  user_id_b, used as the "victim" id in ownership-boundary checks.
+}

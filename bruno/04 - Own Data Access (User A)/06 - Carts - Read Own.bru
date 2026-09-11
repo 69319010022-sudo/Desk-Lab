@@ -1,0 +1,28 @@
+meta {
+  name: Carts - Read Own
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{supabase_url}}/rest/v1/carts?select=*
+  body: none
+  auth: none
+}
+
+headers {
+  apikey: {{anon_key}}
+  Authorization: Bearer {{access_token_a}}
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+}
+
+docs {
+  carts_all_own. Test User A has never added anything to a cart, so
+  an empty array is the CORRECT result here, not a failure - the
+  point of this request is just "no error, no other user's cart".
+}

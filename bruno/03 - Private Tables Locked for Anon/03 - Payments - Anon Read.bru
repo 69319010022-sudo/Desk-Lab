@@ -1,0 +1,28 @@
+meta {
+  name: Payments - Anon Read
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{supabase_url}}/rest/v1/payments?select=*
+  body: none
+  auth: none
+}
+
+headers {
+  apikey: {{anon_key}}
+}
+
+tests {
+  test("status is 200, no rows leaked", function() {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody()).to.deep.equal([]);
+  });
+}
+
+docs {
+  Payment/transaction records are the most sensitive table in the
+  schema - this confirms an anonymous request cannot see any of the
+  8 real payment rows currently in the database.
+}

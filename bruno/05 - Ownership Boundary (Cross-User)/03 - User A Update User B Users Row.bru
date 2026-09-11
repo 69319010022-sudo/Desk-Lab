@@ -1,0 +1,40 @@
+meta {
+  name: User A Update User B Users Row
+  type: http
+  seq: 3
+}
+
+patch {
+  url: {{supabase_url}}/rest/v1/users?id=eq.{{user_id_b}}
+  body: json
+  auth: none
+}
+
+headers {
+  apikey: {{anon_key}}
+  Authorization: Bearer {{access_token_a}}
+  Content-Type: application/json
+  Prefer: return=representation
+}
+
+body:json {
+  {
+    "phone": "0000000000"
+  }
+}
+
+tests {
+  test("status is 200, but zero rows updated", function() {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody()).to.deep.equal([]);
+  });
+}
+
+docs {
+  Verified live against the real project: 200 with an empty array,
+  meaning the PATCH matched nothing (users_update_own filters the
+  target row set to auth.uid() = id before the WHERE clause even
+  applies) - User B's phone number is left untouched. This is NOT an
+  error response, which is the point: don't mistake 200 for success
+  here without checking the body is empty.
+}

@@ -1,0 +1,41 @@
+meta {
+  name: Activity Logs - Insert Own
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{supabase_url}}/rest/v1/activity_logs
+  body: json
+  auth: none
+}
+
+headers {
+  apikey: {{anon_key}}
+  Authorization: Bearer {{access_token_a}}
+  Content-Type: application/json
+  Prefer: return=representation
+}
+
+body:json {
+  {
+    "user_id": "{{user_id_a}}",
+    "action": "auth.signed_in",
+    "entity_type": "users",
+    "entity_id": "{{user_id_a}}"
+  }
+}
+
+tests {
+  test("status is 201 - authenticated users may log their own actions", function() {
+    expect(res.getStatus()).to.equal(201);
+  });
+}
+
+docs {
+  activity_logs is append-only: select/insert own, no update/delete
+  for authenticated. This is the one write the app itself relies on
+  (src/lib/actions/logging.ts calls this same insert via service
+  role, but a direct authenticated insert of one's own row is also
+  intentionally allowed). Verified live: 201.
+}

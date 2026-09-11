@@ -1,0 +1,41 @@
+meta {
+  name: User A Insert Activity Log As User B
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{supabase_url}}/rest/v1/activity_logs
+  body: json
+  auth: none
+}
+
+headers {
+  apikey: {{anon_key}}
+  Authorization: Bearer {{access_token_a}}
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "user_id": "{{user_id_b}}",
+    "action": "auth.signed_in",
+    "entity_type": "users",
+    "entity_id": "{{user_id_b}}"
+  }
+}
+
+tests {
+  test("status is 403 - blocked by WITH CHECK", function() {
+    expect(res.getStatus()).to.equal(403);
+  });
+}
+
+docs {
+  Unlike the address/order/users cases above, this one IS a policy
+  violation error (403), not a silent empty result - because INSERT
+  has no existing row for RLS to filter against, a failing WITH CHECK
+  on the new row rejects the whole statement. Verified live: 403.
+  Confirms Test User A can't forge log entries under someone else's
+  identity.
+}

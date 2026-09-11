@@ -1,0 +1,35 @@
+meta {
+  name: Register Test User B
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{supabase_url}}/auth/v1/signup
+  body: json
+  auth: none
+}
+
+headers {
+  apikey: {{anon_key}}
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "email": "{{test_email_b}}",
+    "password": "{{test_password_b}}",
+    "data": { "name": "bruno_test_b" }
+  }
+}
+
+tests {
+  test("signup succeeded or user already exists", function() {
+    expect([200, 422]).to.include(res.getStatus());
+  });
+}
+
+docs {
+  Test User B - used only as the "other person" in cross-user RLS
+  negative tests (folder 05). Same notes as Test User A.
+}
