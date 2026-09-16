@@ -44,13 +44,11 @@ function HeroSection({ productCount }: { productCount: number }) {
 
   return (
     <section className="flex flex-col gap-8 overflow-hidden rounded-[16px] bg-footer p-[36px] text-white md:flex-row md:items-center md:justify-between">
-      <div className="flex max-w-xl flex-col gap-5">
-        <h1 className="text-[40px] font-bold leading-[1.1] md:text-[48px]">
-          จัดโต๊ะทำงานให้ครบ
-          <br />
-          ในที่เดียว
+      <div className="flex max-w-xl flex-1 flex-col gap-5 md:max-w-none">
+        <h1 className="text-[28px] font-bold leading-[1.15] sm:text-[34px] md:whitespace-nowrap md:text-[clamp(28px,3.2vw,48px)]">
+          จัดโต๊ะทำงานให้ครบในที่เดียว
         </h1>
-        <p className="text-[14px] leading-relaxed text-white/70 md:text-[15px]">
+        <p className="max-w-xl text-[14px] leading-relaxed text-white/70 md:text-[15px]">
           อุปกรณ์จัดโต๊ะคอมพิวเตอร์ครบวงจร ตั้งแต่โคมไฟ ที่รองเมาส์ ไปจนถึง
           ลำโพงและขาตั้งจอ เลือกได้ในที่เดียว พร้อมจัดส่งทั่วประเทศไทย
         </p>

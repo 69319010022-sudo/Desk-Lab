@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { getCategories, getProducts } from "@/lib/data/catalog";
 import { getCart } from "@/lib/data/cart";
 import ShopCatalog from "./ShopCatalog";
@@ -27,11 +28,13 @@ export default async function ShopPage() {
   return (
     <div className="flex gap-[24px] px-[28px] pb-[28px] pt-[24px]">
       <div className="min-w-0 flex-1">
-        <ShopCatalog
-          categories={categories}
-          products={products}
-          categoryNameById={categoryNameById}
-        />
+        <Suspense fallback={null}>
+          <ShopCatalog
+            categories={categories}
+            products={products}
+            categoryNameById={categoryNameById}
+          />
+        </Suspense>
       </div>
 
       <CartAside cart={cart} />

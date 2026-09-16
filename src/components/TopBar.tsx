@@ -1,15 +1,16 @@
 "use client";
 
+import { useState, type FormEvent } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { signOutAction } from "@/lib/actions/auth";
 import { formatBaht } from "@/lib/demo-data";
 import type { CurrentUser } from "@/lib/data/auth";
 
 // TopBar 68px ดึงมาจาก Figma จริง (get_design_context, node 1:303 "Chrome/TopBar" บนเฟรม
-// "01 · Home — POS") — ชื่อหน้า+แท็กไลน์ 2 บรรทัด, ช่องค้นหา (ยังเป็น UI เฉยๆ ไม่ผูกระบบค้นหาจริง),
-// ตั๋วตะกร้าโชว์ยอดรวมจริง, วงกลม avatar (เมนูโปรไฟล์/ออกจากระบบ เป็นส่วนที่เพิ่มเองเพราะดีไซน์นิ่ง
-// ไม่มี interaction — ย้ายมาจาก Navbar เดิม)
+// "01 · Home — POS") — ชื่อหน้า+แท็กไลน์ 2 บรรทัด, ช่องค้นหา (submit แล้วพาไปหน้า /shop?q=...
+// ซึ่ง ShopCatalog อ่านค่านี้มา filter ต่อ), ตั๋วตะกร้าโชว์ยอดรวมจริง, วงกลม avatar
+// (เมนูโปรไฟล์/ออกจากระบบ เป็นส่วนที่เพิ่มเองเพราะดีไซน์นิ่งไม่มี interaction — ย้ายมาจาก Navbar เดิม)
 
 const titleRules: { match: (path: string) => boolean; title: string }[] = [
   { match: (p) => p === "/", title: "หน้าแรก" },
@@ -44,8 +45,16 @@ export default function TopBar({
   user?: CurrentUser | null;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   const title = pageTitle(pathname);
   const initials = initialsOf(user?.name || user?.email || "G");
+  const [query, setQuery] = useState("");
+
+  function handleSearchSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const q = query.trim();
+    router.push(q ? `/shop?q=${encodeURIComponent(q)}` : "/shop");
+  }
 
   return (
     <header className="flex h-[68px] items-center justify-between border-b border-border bg-background px-[28px]">
@@ -56,10 +65,19 @@ export default function TopBar({
       </div>
 
       <div className="flex items-center gap-[14px]">
-        <div className="flex h-9 w-[220px] items-center gap-2 rounded-lg border border-subtle bg-sunken px-3 text-muted">
+        <form
+          onSubmit={handleSearchSubmit}
+          className="flex h-9 w-[220px] items-center gap-2 rounded-lg border border-subtle bg-sunken px-3 text-muted focus-within:border-ink"
+        >
           <SearchIcon />
-          <span className="text-[13px]">ค้นหาสินค้า...</span>
-        </div>
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="ค้นหาสินค้า..."
+            className="w-full bg-transparent text-[13px] text-ink placeholder-muted outline-none"
+          />
+        </form>
 
         <Link
           href="/cart"

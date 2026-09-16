@@ -3,7 +3,7 @@ import { Product, formatBaht } from "@/lib/demo-data";
 import { addToCart } from "@/lib/actions/cart";
 
 // Tile/Product ดึงมาจาก Figma จริง (get_design_context, node 1:300 "01 · Home — POS")
-// รูปสูง 176px, eyebrow หมวดหมู่ (ถ้ามีส่งเข้ามา), ชื่อสินค้า, แถวราคา + ปุ่ม "+" สี่เหลี่ยมเล็ก
+// รูปสูง 176px, eyebrow หมวดหมู่ (ถ้ามีส่งเข้ามา), ชื่อสินค้า, แถวราคา + ปุ่มตะกร้าสี่เหลี่ยมเล็ก
 // แทนปุ่มข้อความเต็มความกว้างแบบเดิม — categoryName เป็น optional เพื่อไม่กระทบหน้าที่ยังไม่ได้อัปเดต
 
 export default function ProductCard({
@@ -55,7 +55,7 @@ export default function ProductCard({
               aria-label={inStock ? "เพิ่มลงตะกร้า" : "สินค้าหมด"}
               className="flex size-[36px] items-center justify-center rounded-[8px] bg-ink text-white transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:bg-faint"
             >
-              <PlusIcon />
+              <CartIcon />
             </button>
           </form>
         </div>
@@ -64,10 +64,12 @@ export default function ProductCard({
   );
 }
 
-function PlusIcon() {
+function CartIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 5v14M5 12h14" />
+      <circle cx="9" cy="21" r="1" />
+      <circle cx="19" cy="21" r="1" />
+      <path d="M2.5 3h2l2.68 13.39a2 2 0 0 0 2 1.61h8.64a2 2 0 0 0 2-1.61L23 6H5.5" />
     </svg>
   );
 }

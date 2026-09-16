@@ -13,6 +13,7 @@ export type CurrentUser = {
   name: string | null;
   phone: string | null;
   avatarUrl: string | null;
+  role: "customer" | "admin";
 };
 
 export async function getCurrentUser(): Promise<CurrentUser | null> {
@@ -29,7 +30,7 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
   // ด้วย maybeSingle() แทน single()
   const { data: profile } = await supabase
     .from("users")
-    .select("name, phone, avatar_url")
+    .select("name, phone, avatar_url, role")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -39,5 +40,6 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
     name: profile?.name ?? null,
     phone: profile?.phone ?? null,
     avatarUrl: profile?.avatar_url ?? null,
+    role: (profile?.role as "customer" | "admin" | undefined) ?? "customer",
   };
 }

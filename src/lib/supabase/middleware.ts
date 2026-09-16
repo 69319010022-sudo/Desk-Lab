@@ -1,7 +1,8 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-// เรียกจาก middleware.ts (ที่ root ของโปรเจกต์) ทุกครั้งที่มี request เข้ามา
+// เรียกจาก src/proxy.ts ทุกครั้งที่มี request เข้ามา (เดิมชื่อ middleware.ts —
+// Next.js 16 เปลี่ยนชื่อ convention เป็น proxy.ts แต่ทำหน้าที่เดิมทุกอย่าง)
 // หน้าที่ของมันคือ "ต่ออายุ" session token ของผู้ใช้ที่ล็อกอินอยู่ ก่อนที่ token
 // จะหมดอายุ — ถ้าไม่มีขั้นตอนนี้ ผู้ใช้จะถูกเด้งออกจากระบบเองเป็นระยะๆ
 
@@ -32,7 +33,66 @@ export async function updateSession(request: NextRequest) {
 
   // ต้องเรียก getUser() (ไม่ใช่ getSession()) เพื่อให้ตรวจสอบ token กับ Supabase
   // Auth server จริงทุกครั้ง ป้องกันการปลอมแปลง session cookie ฝั่ง client
-  await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const pathname = request.nextUrl.pathname;
+  const isAdminPath = pathname.startsWith("/admin");
+
+  // Guard เฉพาะโซนแอดมิน (/admin/*) — ต้องล็อกอินและมี role = 'admin' ใน
+  // public.users เท่านั้นถึงจะเข้าได้ ไม่ล็อกอิน -> เด้งไป /login,
+  // ล็อกอินแต่ไม่ใช่ admin -> เด้งกลับหน้าแรก ไม่กระทบ flow ลูกค้าทั่วไปเลย
+  if (isAdminPath) {
+    if (!user) {
+      const loginUrl = new URL("/login", request.url);
+      loginUrl.searchParams.set("redirectTo", pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+
+    const { data: profile } = await supabase
+      .from("users")
+      .select("role")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (profile?.role !== "admin") {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
+
+    return supabaseResponse;
+  }
+
+  // แก้ปัญหา 2026-09-13: เดิม signInAction พาแอดมินไป /admin/dashboard แค่ตอน "ล็อกอินสำเร็จ
+  // ครั้งใหม่" เท่านั้น — ถ้า session เดิมยังอยู่ (เช่น restart dev server / deploy ใหม่แล้วเปิด
+  // เว็บขึ้นมาโดยยังไม่ได้ล็อกเอาต์) จะไม่มีอะไรพาแอดมินกลับไป dashboard อีก ทำให้เห็นหน้าลูกค้า
+  // แทน — แก้ให้ครอบคลุมทุก request: ถ้าล็อกอินอยู่และเป็นแอดมิน แล้วพยายามเข้าหน้าไหนก็ตามที่
+  // ไม่ใช่โซนแอดมินและไม่ใช่หน้า auth (login/register/ลืมรหัสผ่าน/ตั้งรหัสผ่านใหม่/ยืนยันอีเมล)
+  // ให้เด้งไป /admin/dashboard เสมอ — ตรงกับดีไซน์ที่ตั้งใจไว้ว่าบัญชีแอดมินมีไว้เข้า Dashboard
+  // เท่านั้น ไม่ใช้ช้อปปิ้ง/ตะกร้า/ที่อยู่แบบลูกค้าทั่วไป
+  const AUTH_FLOW_PREFIXES = ["/login", "/register", "/forgot-password", "/reset-password", "/auth"];
+  const isAuthFlowPath = AUTH_FLOW_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+  );
+
+  if (user && !isAuthFlowPath) {
+    const { data: profile } = await supabase
+      .from("users")
+      .select("role")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (profile?.role === "admin") {
+      // ต้องคัดลอกคุกกี้ที่ refresh แล้วจาก supabaseResponse มาด้วย ไม่งั้นถ้า token
+      // เพิ่งถูกต่ออายุในรีเควสต์นี้ คุกกี้ใหม่จะหายไปเพราะเราคืนค่า redirect response
+      // อันใหม่แทนที่จะเป็น supabaseResponse ตัวเดิม
+      const redirectResponse = NextResponse.redirect(new URL("/admin/dashboard", request.url));
+      supabaseResponse.cookies.getAll().forEach((cookie) => {
+        redirectResponse.cookies.set(cookie);
+      });
+      return redirectResponse;
+    }
+  }
 
   return supabaseResponse;
 }

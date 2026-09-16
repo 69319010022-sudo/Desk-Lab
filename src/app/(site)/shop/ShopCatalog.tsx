@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import ProductCard from "@/components/ProductCard";
 import type { Category, Product } from "@/lib/demo-data";
 
@@ -16,8 +17,18 @@ export default function ShopCatalog({
   products: Product[];
   categoryNameById: Map<number, string>;
 }) {
+  const searchParams = useSearchParams();
+  const qParam = searchParams.get("q") ?? "";
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(qParam);
+  // ซิงก์ query กับ ?q= ใน URL ตอนมันเปลี่ยน (เช่น กด back/forward หรือมีลิงก์ค้นหาจากที่อื่น)
+  // โดยไม่ใช้ useEffect — ปรับ state ระหว่าง render ตามแพทเทิร์นทางการของ React
+  // (https://react.dev/learn/you-might-not-need-an-effect#adjusting-some-state-when-a-prop-changes)
+  const [prevQParam, setPrevQParam] = useState(qParam);
+  if (qParam !== prevQParam) {
+    setPrevQParam(qParam);
+    setQuery(qParam);
+  }
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();

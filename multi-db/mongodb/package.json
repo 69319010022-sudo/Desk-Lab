@@ -1,0 +1,9 @@
+{
+  "name": "desklab-multidb-mongodb",
+  "private": true,
+  "type": "module",
+  "description": "Placeholder collection-creation script for the MongoDB backup DB (Multi-DB step 3)",
+  "dependencies": {
+    "mongodb": "^6.10.0"
+  }
+}

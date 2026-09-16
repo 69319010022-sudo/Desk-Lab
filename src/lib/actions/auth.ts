@@ -66,6 +66,22 @@ export async function signInAction(
 
   // ต้อง revalidate เพราะ Navbar (ใน layout) อ่านสถานะล็อกอินไว้แล้วตอน render ครั้งก่อน
   revalidatePath("/", "layout");
+
+  // เช็ค role หลังล็อกอินสำเร็จ — แอดมินพาไป /admin/dashboard เลย ลูกค้าทั่วไปพฤติกรรม
+  // เดิมทุกอย่างไม่เปลี่ยน (ไป "/" เหมือนเดิม) — แก้ปัญหา 2026-09-12: ก่อนหน้านี้ redirect("/")
+  // เสมอไม่ว่าใครล็อกอิน ทำให้บัญชีแอดมินล็อกอินแล้วไม่เห็นทางเข้า Dashboard เลย
+  if (data.user) {
+    const { data: profile } = await supabase
+      .from("users")
+      .select("role")
+      .eq("id", data.user.id)
+      .maybeSingle();
+
+    if (profile?.role === "admin") {
+      redirect("/admin/dashboard");
+    }
+  }
+
   redirect("/");
 }
 
