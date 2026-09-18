@@ -57,17 +57,17 @@ export default function TopBar({
   }
 
   return (
-    <header className="flex h-[68px] items-center justify-between border-b border-border bg-background px-[28px]">
-      <div className="flex flex-col justify-center">
-        <h1 className="text-[18px] font-semibold leading-tight text-ink">
+    <header className="flex h-[68px] items-center justify-between gap-2 border-b border-border bg-background px-4 lg:px-[28px]">
+      <div className="flex min-w-0 flex-col justify-center">
+        <h1 className="truncate text-[18px] font-semibold leading-tight text-ink">
           {title}
         </h1>
       </div>
 
-      <div className="flex items-center gap-[14px]">
+      <div className="flex shrink-0 items-center gap-[10px] lg:gap-[14px]">
         <form
           onSubmit={handleSearchSubmit}
-          className="flex h-9 w-[220px] items-center gap-2 rounded-lg border border-subtle bg-sunken px-3 text-muted focus-within:border-ink"
+          className="hidden h-9 w-[220px] items-center gap-2 rounded-lg border border-subtle bg-sunken px-3 text-muted focus-within:border-ink md:flex"
         >
           <SearchIcon />
           <input
@@ -81,11 +81,11 @@ export default function TopBar({
 
         <Link
           href="/cart"
-          className="flex h-9 w-[180px] items-center gap-2 rounded-lg bg-ink px-3 text-white"
+          className="flex h-9 w-auto items-center gap-2 rounded-lg bg-ink px-3 text-white"
         >
           <TicketIcon />
-          <span className="text-[12px] text-white/60">{cartCount} รายการ</span>
-          <span className="ml-auto h-4 w-px bg-white/20" />
+          <span className="hidden text-[12px] text-white/60 sm:inline">{cartCount} รายการ</span>
+          <span className="ml-auto hidden h-4 w-px bg-white/20 sm:block" />
           <span className="font-mono text-[13px] font-semibold">
             {formatBaht(cartTotal)}
           </span>

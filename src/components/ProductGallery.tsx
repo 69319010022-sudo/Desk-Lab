@@ -15,7 +15,7 @@ export default function ProductGallery({
 
   if (images.length === 0) {
     return (
-      <div className="flex flex-col gap-3">
+      <div className="mx-auto flex w-full max-w-[480px] flex-col gap-3">
         <div className="flex aspect-square items-center justify-center rounded-xl bg-surface text-muted">
           <div className="flex flex-col items-center gap-2">
             <ImagePlaceholderIcon />
@@ -27,7 +27,7 @@ export default function ProductGallery({
   }
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="mx-auto flex w-full max-w-[480px] flex-col gap-3">
       <div className="relative flex aspect-square items-center justify-center overflow-hidden rounded-xl bg-surface p-8">
         <AnimatePresence mode="wait" initial={false}>
           <motion.img

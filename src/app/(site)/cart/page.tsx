@@ -28,7 +28,7 @@ export default async function CartPage() {
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <div className="flex gap-[24px] px-[28px] pb-[28px] pt-[24px]">
+    <div className="flex flex-col gap-[24px] px-4 pb-[28px] pt-[24px] lg:flex-row lg:px-[28px]">
       <div className="min-w-0 flex-1">
         {items.length === 0 ? (
           <CartEmptyState />
