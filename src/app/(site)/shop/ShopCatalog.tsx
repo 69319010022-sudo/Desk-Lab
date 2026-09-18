@@ -2,12 +2,33 @@
 
 import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { motion, type Variants } from "motion/react";
 import ProductCard from "@/components/ProductCard";
 import type { Category, Product } from "@/lib/demo-data";
 
 // ส่วนที่ต้องมี interactivity ของหน้า Shop (ค้นหา + ชิปหมวดหมู่) แยกเป็น client
 // component เล็กๆ ตัวเดียว กรองฝั่ง client เพราะสินค้ามีแค่ ~10 ชิ้น (ตามที่ระบุไว้ใน
 // SHOP-PAGE-SETUP.md ข้อ "Known Limitations") ถ้าสินค้าเยอะขึ้นมากค่อยย้ายไปกรองฝั่งเซิร์ฟเวอร์ทีหลัง
+
+// อัปเดต (2026-09-16): เพิ่ม fade-in/stagger ตอนการ์ดสินค้าโหลดเข้ามาครั้งแรกหรือตอนกรอง
+// หมวดหมู่ (ไม่รวมตอนพิมพ์ค้นหา เพื่อไม่ให้จอกระตุกทุกตัวอักษร) — ครอบการ์ดด้วย motion.div
+// wrapper แยกชั้นจาก hover animation ที่อยู่ใน ProductCard.tsx เอง (ProductCard ตั้ง
+// animate="rest" ของตัวเองอยู่แล้ว ถ้าใช้ variants เดียวกันจะชนกัน จึงแยกเป็นคนละชั้น)
+const containerVariants: Variants = {
+  hidden: {},
+  visible: {
+    transition: { staggerChildren: 0.045, delayChildren: 0.03 },
+  },
+};
+
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 14 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { type: "spring", stiffness: 300, damping: 26 },
+  },
+};
 export default function ShopCatalog({
   categories,
   products,
@@ -89,15 +110,22 @@ export default function ShopCatalog({
       </div>
 
       {filtered.length > 0 ? (
-        <div className="grid grid-cols-2 gap-[20px] md:grid-cols-3">
+        <motion.div
+          key={selectedCategoryId ?? "all"}
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="grid grid-cols-2 gap-[20px] md:grid-cols-3"
+        >
           {filtered.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              categoryName={categoryNameById.get(product.categoryId)}
-            />
+            <motion.div key={product.id} variants={itemVariants}>
+              <ProductCard
+                product={product}
+                categoryName={categoryNameById.get(product.categoryId)}
+              />
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       ) : (
         <div className="flex flex-col items-center gap-1 py-16 text-center">
           <p className="text-[14px] text-muted">ไม่พบสินค้า</p>
