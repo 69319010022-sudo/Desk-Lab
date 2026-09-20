@@ -22,10 +22,10 @@ export default function AdminRail() {
     <aside className="sticky top-0 z-40 flex h-screen w-[76px] shrink-0 flex-col items-center gap-2 bg-ink py-5 text-white">
       <Link
         href="/admin/dashboard"
-        className="mb-3.5 flex h-10 w-10 items-center justify-center rounded-[11px] bg-white text-[13px] font-medium text-ink"
+        className="mb-3.5 flex h-10 w-10 items-center justify-center rounded-[11px] bg-white p-[7px]"
         aria-label="DeskLab Admin"
       >
-        DL
+        <img src="/logo-icon.png" alt="DeskLab" className="h-full w-full object-contain" />
       </Link>
 
       {navItems.map((item) => {

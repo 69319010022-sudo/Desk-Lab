@@ -23,6 +23,11 @@ const ibmPlexMono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   title: "DeskLab — ของแต่งโต๊ะคอมพิวเตอร์",
   description: "ร้านขายของแต่งโต๊ะคอมพิวเตอร์ออนไลน์ พร้อมโปรแกรมจำลองการจัดโต๊ะ",
+  openGraph: {
+    title: "DeskLab — ของแต่งโต๊ะคอมพิวเตอร์",
+    description: "ร้านขายของแต่งโต๊ะคอมพิวเตอร์ออนไลน์ พร้อมโปรแกรมจำลองการจัดโต๊ะ",
+    images: [{ url: "/og-image.png", width: 896, height: 553 }],
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

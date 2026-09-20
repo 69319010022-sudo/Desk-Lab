@@ -11,9 +11,8 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
     <>
       <header className="border-b border-border">
         <div className="mx-auto flex h-16 w-full max-w-[1280px] items-center px-6 md:px-10">
-          <Link href="/" className="flex items-center gap-2 text-lg font-bold">
-            <span className="inline-block h-8 w-8 rounded-md bg-primary" />
-            DeskLab
+          <Link href="/" className="flex items-center">
+            <img src="/logo-lockup.png" alt="DeskLab" className="h-9 w-auto" />
           </Link>
         </div>
       </header>

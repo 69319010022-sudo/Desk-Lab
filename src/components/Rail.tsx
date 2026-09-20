@@ -28,10 +28,10 @@ export default function Rail({
       <div className="flex flex-col items-center gap-2">
         <Link
           href="/"
-          className="mb-3.5 flex h-10 w-10 items-center justify-center rounded-[11px] bg-white text-[13px] font-medium text-ink"
+          className="mb-3.5 flex h-10 w-10 items-center justify-center rounded-[11px] bg-white p-[7px]"
           aria-label="DeskLab"
         >
-          DL
+          <img src="/logo-icon.png" alt="DeskLab" className="h-full w-full object-contain" />
         </Link>
 
         {navItems.map((item) => {
