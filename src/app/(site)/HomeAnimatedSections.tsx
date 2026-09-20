@@ -95,10 +95,10 @@ export function CategoryRow({ categories }: { categories: Category[] }) {
               className="flex h-full items-center gap-3 rounded-[10px] border border-subtle bg-background px-4 py-3.5 transition-colors hover:bg-sunken"
             >
               <span
-                className="flex size-[36px] shrink-0 items-center justify-center rounded-[8px] text-[14px] font-semibold text-ink"
+                className="flex size-[36px] shrink-0 items-center justify-center rounded-[8px] text-ink"
                 style={{ backgroundColor: categoryBlockColors[i % categoryBlockColors.length] }}
               >
-                {cat.name.charAt(0)}
+                <CategoryIcon slug={cat.slug} />
               </span>
               <span className="truncate text-[13px] font-medium text-ink">{cat.name}</span>
             </Link>
@@ -106,6 +106,147 @@ export function CategoryRow({ categories }: { categories: Category[] }) {
         ))}
       </motion.div>
     </section>
+  );
+}
+
+// ไอคอนหมวดหมู่บนหน้าแรก — วาดเป็น inline SVG line-icon สไตล์เดียวกับที่ใช้ใน
+// AdminRail.tsx (viewBox 18x18, stroke="currentColor", strokeWidth 1.5) แทนที่การ
+// โชว์ตัวอักษรแรกของชื่อหมวดหมู่แบบเดิม ซึ่งตัวอักษรไทยบางตัวเรนเดอร์เล็กจนดูเหมือน
+// ตัวอังกฤษ และหลายหมวดขึ้นต้นด้วยคำเดียวกัน ("ที่...") ทำให้แยกไม่ออก
+function CategoryIcon({ slug }: { slug: string }) {
+  switch (slug) {
+    case "lamp":
+      return <LampCategoryIcon />;
+    case "mousepad":
+      return <MousepadCategoryIcon />;
+    case "monitor-stand":
+      return <MonitorStandCategoryIcon />;
+    case "speaker":
+      return <SpeakerCategoryIcon />;
+    case "headphone-stand":
+      return <HeadphoneCategoryIcon />;
+    case "keyboard":
+      return <KeyboardCategoryIcon />;
+    case "charging-power":
+      return <ChargingCategoryIcon />;
+    case "desk-organizer":
+      return <OrganizerCategoryIcon />;
+    default:
+      return <DefaultCategoryIcon />;
+  }
+}
+
+const categoryIconProps = {
+  width: 18,
+  height: 18,
+  viewBox: "0 0 18 18",
+  fill: "none" as const,
+  stroke: "currentColor",
+  strokeWidth: 1.5,
+  strokeLinecap: "round" as const,
+  strokeLinejoin: "round" as const,
+};
+
+// โคมไฟ
+function LampCategoryIcon() {
+  return (
+    <svg {...categoryIconProps}>
+      <path d="M3.5 15.5h6" />
+      <path d="M6.5 15.5V10" />
+      <path d="M6.5 10 11 7" />
+      <path d="M9.3 3.6 14.5 5.6 12 9 7.3 7.2Z" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+// แผ่นรองเมาส์
+function MousepadCategoryIcon() {
+  return (
+    <svg {...categoryIconProps}>
+      <rect x="2" y="4" width="14" height="10" rx="3" />
+      <rect x="7.5" y="6" width="3" height="7" rx="1.5" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+// ที่วางจอ
+function MonitorStandCategoryIcon() {
+  return (
+    <svg {...categoryIconProps}>
+      <rect x="2" y="2.5" width="14" height="9" rx="1.5" />
+      <path d="M9 11.5v2.5" />
+      <path d="M5.5 15.5h7" />
+    </svg>
+  );
+}
+
+// ลำโพง
+function SpeakerCategoryIcon() {
+  return (
+    <svg {...categoryIconProps}>
+      <rect x="5" y="1.5" width="8" height="15" rx="2" />
+      <circle cx="9" cy="6" r="1.6" />
+      <circle cx="9" cy="11.5" r="2.6" />
+    </svg>
+  );
+}
+
+// ที่วางหูฟัง
+function HeadphoneCategoryIcon() {
+  return (
+    <svg {...categoryIconProps}>
+      <path d="M3 10.5v-1a6 6 0 0 1 12 0v1" />
+      <rect x="2" y="10" width="3" height="5" rx="1.4" />
+      <rect x="13" y="10" width="3" height="5" rx="1.4" />
+    </svg>
+  );
+}
+
+// คีย์บอร์ด
+function KeyboardCategoryIcon() {
+  return (
+    <svg {...categoryIconProps}>
+      <rect x="1.5" y="4.5" width="15" height="9" rx="1.5" />
+      <rect x="4" y="7" width="1.6" height="1.6" rx="0.4" fill="currentColor" stroke="none" />
+      <rect x="7.2" y="7" width="1.6" height="1.6" rx="0.4" fill="currentColor" stroke="none" />
+      <rect x="10.4" y="7" width="1.6" height="1.6" rx="0.4" fill="currentColor" stroke="none" />
+      <rect x="13.6" y="7" width="1.6" height="1.6" rx="0.4" fill="currentColor" stroke="none" />
+      <rect x="4" y="10.2" width="10" height="1.6" rx="0.6" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+// ที่ชาร์จและปลั๊กไฟ
+function ChargingCategoryIcon() {
+  return (
+    <svg {...categoryIconProps}>
+      <path d="M6 2v4M12 2v4" />
+      <path d="M4.5 6h9v3a4.5 4.5 0 0 1-9 0V6Z" />
+      <path d="M9 13.5V16" />
+    </svg>
+  );
+}
+
+// ที่จัดระเบียบโต๊ะ
+function OrganizerCategoryIcon() {
+  return (
+    <svg {...categoryIconProps}>
+      <rect x="1.5" y="5" width="15" height="9" rx="1.5" />
+      <path d="M6.5 5v9M11.5 5v9" />
+      <path d="M1.5 9h4M11.5 9h5" />
+    </svg>
+  );
+}
+
+// ไอคอนสำรอง (เผื่อมีหมวดหมู่ใหม่ในอนาคตที่ยังไม่มีไอคอนเฉพาะ)
+function DefaultCategoryIcon() {
+  return (
+    <svg {...categoryIconProps}>
+      <rect x="2" y="2" width="6" height="6" rx="1.2" />
+      <rect x="10" y="2" width="6" height="6" rx="1.2" />
+      <rect x="2" y="10" width="6" height="6" rx="1.2" />
+      <rect x="10" y="10" width="6" height="6" rx="1.2" />
+    </svg>
   );
 }
 
