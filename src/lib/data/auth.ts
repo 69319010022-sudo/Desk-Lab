@@ -13,7 +13,7 @@ export type CurrentUser = {
   name: string | null;
   phone: string | null;
   avatarUrl: string | null;
-  role: "customer" | "admin";
+  role: "customer" | "admin" | "cashier";
 };
 
 export async function getCurrentUser(): Promise<CurrentUser | null> {
@@ -40,6 +40,6 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
     name: profile?.name ?? null,
     phone: profile?.phone ?? null,
     avatarUrl: profile?.avatar_url ?? null,
-    role: (profile?.role as "customer" | "admin" | undefined) ?? "customer",
+    role: (profile?.role as "customer" | "admin" | "cashier" | undefined) ?? "customer",
   };
 }

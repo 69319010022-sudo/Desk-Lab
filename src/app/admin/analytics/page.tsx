@@ -1,10 +1,17 @@
+import { redirect } from "next/navigation";
 import SalesBarChart from "@/components/admin/SalesBarChart";
 import { formatBaht } from "@/lib/demo-data";
+import { getCurrentUser } from "@/lib/data/auth";
 import { getSalesOverTime, getTopProducts, getTopCustomers } from "@/lib/data/admin-analytics";
 
 // หน้า Analytics — ขั้นตอนที่ 8 (ขั้นตอนสุดท้าย): ยอดขายตามช่วงเวลา, สินค้าขายดี, ลูกค้า
 // นิยามตัวเลขทั้งหมดใช้ VALID_SALES_STATUSES เดียวกับ dashboard (ดู admin-analytics.ts)
 export default async function AdminAnalyticsPage() {
+  const user = await getCurrentUser();
+  if (user?.role === "cashier") {
+    redirect("/admin/orders");
+  }
+
   const [salesOverTime, topProducts, topCustomers] = await Promise.all([
     getSalesOverTime(14),
     getTopProducts(10),

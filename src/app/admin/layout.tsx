@@ -15,7 +15,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     redirect("/login?redirectTo=/admin/dashboard");
   }
 
-  if (user.role !== "admin") {
+  if (user.role !== "admin" && user.role !== "cashier") {
     redirect("/");
   }
 
@@ -24,7 +24,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       {/* print:hidden — ซ่อน Sidebar/TopBar ตอนพิมพ์ (ใช้กับหน้าใบเสร็จ ขั้นตอนที่ 7) */}
       <AdminRealtimeRefresh />
       <div className="print:hidden">
-        <AdminRail />
+        <AdminRail role={user.role} />
       </div>
       <div className="flex min-w-0 flex-1 flex-col bg-sunken print:bg-white">
         <div className="print:hidden">

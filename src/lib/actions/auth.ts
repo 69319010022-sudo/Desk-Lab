@@ -80,6 +80,9 @@ export async function signInAction(
     if (profile?.role === "admin") {
       redirect("/admin/dashboard");
     }
+    if (profile?.role === "cashier") {
+      redirect("/admin/orders");
+    }
   }
 
   redirect("/");

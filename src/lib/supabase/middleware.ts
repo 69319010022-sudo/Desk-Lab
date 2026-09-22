@@ -40,9 +40,10 @@ export async function updateSession(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const isAdminPath = pathname.startsWith("/admin");
 
-  // Guard เฉพาะโซนแอดมิน (/admin/*) — ต้องล็อกอินและมี role = 'admin' ใน
+  // Guard เฉพาะโซนแอดมิน (/admin/*) — ต้องล็อกอินและมี role = 'admin' หรือ 'cashier' ใน
   // public.users เท่านั้นถึงจะเข้าได้ ไม่ล็อกอิน -> เด้งไป /login,
-  // ล็อกอินแต่ไม่ใช่ admin -> เด้งกลับหน้าแรก ไม่กระทบ flow ลูกค้าทั่วไปเลย
+  // ล็อกอินแต่ไม่ใช่ admin/cashier -> เด้งกลับหน้าแรก ไม่กระทบ flow ลูกค้าทั่วไปเลย
+  // cashier มีสิทธิ์จำกัดกว่า admin: เข้าได้เฉพาะ /admin/orders กับ /admin/account เท่านั้น
   if (isAdminPath) {
     if (!user) {
       const loginUrl = new URL("/login", request.url);
@@ -56,8 +57,23 @@ export async function updateSession(request: NextRequest) {
       .eq("id", user.id)
       .maybeSingle();
 
-    if (profile?.role !== "admin") {
+    if (profile?.role !== "admin" && profile?.role !== "cashier") {
       return NextResponse.redirect(new URL("/", request.url));
+    }
+
+    if (profile?.role === "cashier") {
+      const isAllowedForCashier =
+        pathname === "/admin" ||
+        pathname.startsWith("/admin/orders") ||
+        pathname.startsWith("/admin/account");
+
+      if (!isAllowedForCashier) {
+        const redirectResponse = NextResponse.redirect(new URL("/admin/orders", request.url));
+        supabaseResponse.cookies.getAll().forEach((cookie) => {
+          redirectResponse.cookies.set(cookie);
+        });
+        return redirectResponse;
+      }
     }
 
     return supabaseResponse;
@@ -66,10 +82,11 @@ export async function updateSession(request: NextRequest) {
   // แก้ปัญหา 2026-09-13: เดิม signInAction พาแอดมินไป /admin/dashboard แค่ตอน "ล็อกอินสำเร็จ
   // ครั้งใหม่" เท่านั้น — ถ้า session เดิมยังอยู่ (เช่น restart dev server / deploy ใหม่แล้วเปิด
   // เว็บขึ้นมาโดยยังไม่ได้ล็อกเอาต์) จะไม่มีอะไรพาแอดมินกลับไป dashboard อีก ทำให้เห็นหน้าลูกค้า
-  // แทน — แก้ให้ครอบคลุมทุก request: ถ้าล็อกอินอยู่และเป็นแอดมิน แล้วพยายามเข้าหน้าไหนก็ตามที่
-  // ไม่ใช่โซนแอดมินและไม่ใช่หน้า auth (login/register/ลืมรหัสผ่าน/ตั้งรหัสผ่านใหม่/ยืนยันอีเมล)
-  // ให้เด้งไป /admin/dashboard เสมอ — ตรงกับดีไซน์ที่ตั้งใจไว้ว่าบัญชีแอดมินมีไว้เข้า Dashboard
-  // เท่านั้น ไม่ใช้ช้อปปิ้ง/ตะกร้า/ที่อยู่แบบลูกค้าทั่วไป
+  // แทน — แก้ให้ครอบคลุมทุก request: ถ้าล็อกอินอยู่และเป็นแอดมิน/แคชเชียร์ แล้วพยายามเข้าหน้าไหน
+  // ก็ตามที่ไม่ใช่โซนแอดมินและไม่ใช่หน้า auth (login/register/ลืมรหัสผ่าน/ตั้งรหัสผ่านใหม่/
+  // ยืนยันอีเมล) ให้เด้งกลับโซนแอดมินเสมอ — ตรงกับดีไซน์ที่ตั้งใจไว้ว่าบัญชีแอดมิน/แคชเชียร์มีไว้
+  // เข้าโซนแอดมินเท่านั้น ไม่ใช้ช้อปปิ้ง/ตะกร้า/ที่อยู่แบบลูกค้าทั่วไป — ปลายทางของแอดมินคือ
+  // /admin/dashboard ส่วนแคชเชียร์คือ /admin/orders
   const AUTH_FLOW_PREFIXES = ["/login", "/register", "/forgot-password", "/reset-password", "/auth"];
   const isAuthFlowPath = AUTH_FLOW_PREFIXES.some(
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
@@ -82,11 +99,14 @@ export async function updateSession(request: NextRequest) {
       .eq("id", user.id)
       .maybeSingle();
 
-    if (profile?.role === "admin") {
+    const redirectTarget =
+      profile?.role === "admin" ? "/admin/dashboard" : profile?.role === "cashier" ? "/admin/orders" : null;
+
+    if (redirectTarget) {
       // ต้องคัดลอกคุกกี้ที่ refresh แล้วจาก supabaseResponse มาด้วย ไม่งั้นถ้า token
       // เพิ่งถูกต่ออายุในรีเควสต์นี้ คุกกี้ใหม่จะหายไปเพราะเราคืนค่า redirect response
       // อันใหม่แทนที่จะเป็น supabaseResponse ตัวเดิม
-      const redirectResponse = NextResponse.redirect(new URL("/admin/dashboard", request.url));
+      const redirectResponse = NextResponse.redirect(new URL(redirectTarget, request.url));
       supabaseResponse.cookies.getAll().forEach((cookie) => {
         redirectResponse.cookies.set(cookie);
       });

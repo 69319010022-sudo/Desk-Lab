@@ -39,7 +39,7 @@ export default function AdminTopBar({ user }: { user: CurrentUser }) {
 
       <div className="flex items-center gap-[14px]">
         <span className="rounded-full bg-[color:var(--color-status-processing-bg)] px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[color:var(--color-status-processing)]">
-          โหมดแอดมิน
+          {user.role === "cashier" ? "โหมดแคชเชียร์" : "โหมดแอดมิน"}
         </span>
 
         <div className="group relative">

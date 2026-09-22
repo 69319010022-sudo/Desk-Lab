@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import type { CurrentUser } from "@/lib/data/auth";
 
 // Rail ซ้ายของโซนแอดมิน (/admin/*) — สไตล์เดียวกับ Rail.tsx ฝั่งลูกค้า (กล่อง 60x58
 // ไอคอน+ป้ายชื่อ, พื้นหลัง bg-ink) แต่เมนูเป็นชุดของแอดมินคนละชุดกับลูกค้าโดยสิ้นเชิง
 // ป้ายชื่อในนี้ตั้งใจให้สั้น ส่วนชื่อเต็มไปโชว์ที่ AdminTopBar แทน (แพทเทิร์นเดียวกับ Rail เดิม)
+// cashier มีสิทธิ์จำกัดกว่า admin — เข้าได้แค่โซนคำสั่งซื้อ/บัญชี เลยเห็นแค่ 2 เมนูนี้
 
 const navItems = [
   { href: "/admin/dashboard", label: "แดชบอร์ด", icon: DashboardIcon },
@@ -15,20 +17,24 @@ const navItems = [
   { href: "/admin/account", label: "บัญชี", icon: AccountIcon },
 ];
 
-export default function AdminRail() {
+const CASHIER_ALLOWED_HREFS = new Set(["/admin/orders", "/admin/account"]);
+
+export default function AdminRail({ role }: { role: CurrentUser["role"] }) {
   const pathname = usePathname();
+  const homeHref = role === "cashier" ? "/admin/orders" : "/admin/dashboard";
+  const items = role === "cashier" ? navItems.filter((item) => CASHIER_ALLOWED_HREFS.has(item.href)) : navItems;
 
   return (
     <aside className="sticky top-0 z-40 flex h-screen w-[76px] shrink-0 flex-col items-center gap-2 bg-ink py-5 text-white">
       <Link
-        href="/admin/dashboard"
+        href={homeHref}
         className="mb-3.5 flex h-10 w-10 items-center justify-center rounded-[11px] bg-white p-[7px]"
         aria-label="DeskLab Admin"
       >
         <img src="/logo-icon.png" alt="DeskLab" className="h-full w-full object-contain" />
       </Link>
 
-      {navItems.map((item) => {
+      {items.map((item) => {
         const active = pathname.startsWith(item.href);
         const Icon = item.icon;
         return (

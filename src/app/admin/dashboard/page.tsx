@@ -1,8 +1,10 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import StatusBadge from "@/components/StatusBadge";
 import TrendBadge from "@/components/admin/TrendBadge";
 import WeeklySalesLineChart from "@/components/admin/WeeklySalesLineChart";
 import { formatBaht } from "@/lib/demo-data";
+import { getCurrentUser } from "@/lib/data/auth";
 import { getDashboardStats } from "@/lib/data/admin-dashboard";
 import { getLowStockProducts, getProductsSummary } from "@/lib/data/admin-catalog";
 import { getSalesThisWeek, getTopProducts } from "@/lib/data/admin-analytics";
@@ -43,6 +45,11 @@ function KpiCard({
 }
 
 export default async function AdminDashboardPage() {
+  const user = await getCurrentUser();
+  if (user?.role === "cashier") {
+    redirect("/admin/orders");
+  }
+
   const [stats, productsSummary, salesThisWeek, bestSellers, lowStockProducts] = await Promise.all([
     getDashboardStats(),
     getProductsSummary(),
