@@ -9,6 +9,7 @@ import {
 } from "@/lib/actions/profile";
 import type { CurrentUser } from "@/lib/data/auth";
 import AvatarCropModal from "@/components/AvatarCropModal";
+import Spinner from "@/components/Spinner";
 
 const initialState: ProfileActionState = null;
 const avatarInitialState: UploadAvatarState = null;
@@ -172,9 +173,10 @@ export default function ProfileForm({ user }: { user: CurrentUser }) {
             <button
               type="submit"
               disabled={isPending}
-              className="h-[44px] w-fit rounded-[10px] bg-ink px-8 text-[14px] font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex h-[44px] w-fit items-center justify-center gap-2 rounded-[10px] bg-ink px-8 text-[14px] font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {isPending ? "⏳ กำลังบันทึก..." : "บันทึกการเปลี่ยนแปลง"}
+              {isPending && <Spinner />}
+              {isPending ? "กำลังบันทึก..." : "บันทึกการเปลี่ยนแปลง"}
             </button>
           </form>
         </div>

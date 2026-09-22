@@ -5,6 +5,7 @@ import { useActionState } from "react";
 import { AnimatePresence, motion, type Variants } from "motion/react";
 import { signUpAction, type AuthActionState } from "@/lib/actions/auth";
 import PasswordInput from "@/components/PasswordInput";
+import Spinner from "@/components/Spinner";
 
 const initialState: AuthActionState = null;
 
@@ -151,9 +152,10 @@ export default function RegisterForm() {
             whileTap={{ scale: 0.98 }}
             type="submit"
             disabled={isPending}
-            className="h-[44px] w-full rounded-[10px] bg-ink text-[14px] font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex h-[44px] w-full items-center justify-center gap-2 rounded-[10px] bg-ink text-[14px] font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {isPending ? "⏳ กำลังสมัครสมาชิก..." : "สมัครสมาชิก"}
+            {isPending && <Spinner />}
+            {isPending ? "กำลังสมัครสมาชิก..." : "สมัครสมาชิก"}
           </motion.button>
         </motion.form>
 
