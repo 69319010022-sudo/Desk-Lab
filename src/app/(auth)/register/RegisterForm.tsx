@@ -2,10 +2,21 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
+import { AnimatePresence, motion, type Variants } from "motion/react";
 import { signUpAction, type AuthActionState } from "@/lib/actions/auth";
 import PasswordInput from "@/components/PasswordInput";
 
 const initialState: AuthActionState = null;
+
+const containerVariants: Variants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.06, delayChildren: 0.1 } },
+};
+
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 12 },
+  visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 320, damping: 26 } },
+};
 
 // Register ปรับสไตล์ตาม Figma POS-style UI (หน้า 7/9 "07 · Register") — คงฟอร์มเดิมที่ต่อ
 // Supabase Auth จริงไว้ทั้งหมดโดยไม่แตะต้อง (useActionState(signUpAction) + PasswordInput
@@ -17,21 +28,35 @@ export default function RegisterForm() {
   const [state, formAction, isPending] = useActionState(signUpAction, initialState);
 
   return (
-    <div className="flex flex-col items-center gap-6">
-      <div className="text-center">
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+      className="flex flex-col items-center gap-6"
+    >
+      <motion.div variants={itemVariants} className="text-center">
         <h1 className="text-[32px] font-semibold tracking-[-0.4px] text-ink">DeskLab</h1>
         <p className="mt-2 text-[14px] text-muted">สร้างบัญชีใหม่เพื่อเริ่มช้อปกับ DeskLab</p>
-      </div>
+      </motion.div>
 
       {/* เดิม w-[400px] ตายตัว ล้นจอบนมือถือ (375px) เหมือน LoginForm.tsx — แก้แบบเดียวกัน */}
-      <div className="w-full max-w-[400px] rounded-[14px] border border-subtle bg-background p-10">
+      <motion.div
+        variants={itemVariants}
+        className="w-full max-w-[400px] rounded-[14px] border border-subtle bg-background p-10"
+      >
         <div className="mb-6">
           <h2 className="text-[24px] font-semibold tracking-[-0.2px] text-ink">สมัครสมาชิก</h2>
           <p className="mt-2 text-[14px] text-muted">ใช้เวลาไม่ถึงนาที เริ่มช้อปได้ทันที</p>
         </div>
 
-        <form action={formAction} className="flex flex-col gap-5">
-          <div className="flex flex-col gap-1.5">
+        <motion.form
+          action={formAction}
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="flex flex-col gap-5"
+        >
+          <motion.div variants={itemVariants} className="flex flex-col gap-1.5">
             <label htmlFor="username" className="text-[13px] font-medium text-muted">
               ชื่อผู้ใช้
             </label>
@@ -49,9 +74,9 @@ export default function RegisterForm() {
             <p className="text-[12px] text-faint">
               ใช้ตัวอักษร a-z, ตัวเลข, _ หรือ . เท่านั้น ความยาว 3-30 ตัวอักษร
             </p>
-          </div>
+          </motion.div>
 
-          <div className="flex flex-col gap-1.5">
+          <motion.div variants={itemVariants} className="flex flex-col gap-1.5">
             <label htmlFor="email" className="text-[13px] font-medium text-muted">
               อีเมล
             </label>
@@ -64,9 +89,9 @@ export default function RegisterForm() {
               required
               className="h-[44px] w-full rounded-[10px] border border-default bg-background px-[14px] text-[14px] outline-none transition focus:border-ink"
             />
-          </div>
+          </motion.div>
 
-          <div className="flex flex-col gap-1.5">
+          <motion.div variants={itemVariants} className="flex flex-col gap-1.5">
             <label htmlFor="phone" className="text-[13px] font-medium text-muted">
               เบอร์โทรศัพท์ <span className="text-faint">(ไม่บังคับ)</span>
             </label>
@@ -78,9 +103,9 @@ export default function RegisterForm() {
               autoComplete="tel"
               className="h-[44px] w-full rounded-[10px] border border-default bg-background px-[14px] text-[14px] outline-none transition focus:border-ink"
             />
-          </div>
+          </motion.div>
 
-          <div className="flex flex-col gap-1.5">
+          <motion.div variants={itemVariants} className="flex flex-col gap-1.5">
             <label htmlFor="password" className="text-[13px] font-medium text-muted">
               รหัสผ่าน
             </label>
@@ -91,9 +116,9 @@ export default function RegisterForm() {
               autoComplete="new-password"
               required
             />
-          </div>
+          </motion.div>
 
-          <div className="flex flex-col gap-1.5">
+          <motion.div variants={itemVariants} className="flex flex-col gap-1.5">
             <label htmlFor="confirmPassword" className="text-[13px] font-medium text-muted">
               ยืนยันรหัสผ่าน
             </label>
@@ -104,22 +129,33 @@ export default function RegisterForm() {
               autoComplete="new-password"
               required
             />
-          </div>
+          </motion.div>
 
-          {state?.error && (
-            <p className="rounded-lg border border-[color:var(--color-status-cancelled)]/30 bg-sunken px-3.5 py-2.5 text-sm text-[color:var(--color-status-cancelled)]">
-              {state.error}
-            </p>
-          )}
+          <AnimatePresence>
+            {state?.error && (
+              <motion.p
+                initial={{ opacity: 0, y: -6, height: 0 }}
+                animate={{ opacity: 1, y: 0, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
+                className="rounded-lg border border-[color:var(--color-status-cancelled)]/30 bg-sunken px-3.5 py-2.5 text-sm text-[color:var(--color-status-cancelled)]"
+              >
+                {state.error}
+              </motion.p>
+            )}
+          </AnimatePresence>
 
-          <button
+          <motion.button
+            variants={itemVariants}
+            whileHover={{ scale: 1.01 }}
+            whileTap={{ scale: 0.98 }}
             type="submit"
             disabled={isPending}
             className="h-[44px] w-full rounded-[10px] bg-ink text-[14px] font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isPending ? "⏳ กำลังสมัครสมาชิก..." : "สมัครสมาชิก"}
-          </button>
-        </form>
+          </motion.button>
+        </motion.form>
 
         <div className="mt-6 text-center">
           <p className="text-[14px] text-muted">
@@ -129,7 +165,7 @@ export default function RegisterForm() {
             </Link>
           </p>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

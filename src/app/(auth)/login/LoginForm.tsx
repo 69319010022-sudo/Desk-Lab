@@ -2,10 +2,21 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
+import { AnimatePresence, motion, type Variants } from "motion/react";
 import { signInAction, type AuthActionState } from "@/lib/actions/auth";
 import PasswordInput from "@/components/PasswordInput";
 
 const initialState: AuthActionState = null;
+
+const containerVariants: Variants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.07, delayChildren: 0.1 } },
+};
+
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 12 },
+  visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 320, damping: 26 } },
+};
 
 // Login ปรับสไตล์ตาม Figma จริง (get_design_context, node-id=1:450 "06 · Login — POS",
 // fileKey UqD5VwG7M7IFPZMoFuoSo2) — คงฟอร์มเดิมที่ต่อ Supabase Auth จริงไว้ทั้งหมดโดยไม่
@@ -23,36 +34,60 @@ export default function LoginForm({
   const [state, formAction, isPending] = useActionState(signInAction, initialState);
 
   return (
-    <div className="flex flex-col items-center gap-6">
-      <div className="text-center">
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+      className="flex flex-col items-center gap-6"
+    >
+      <motion.div variants={itemVariants} className="text-center">
         <h1 className="text-[32px] font-semibold tracking-[-0.4px] text-ink">DeskLab</h1>
         <p className="mt-2 text-[14px] text-muted">
           ระบบร้านค้าออนไลน์สำหรับของแต่งโต๊ะทำงาน
         </p>
-      </div>
+      </motion.div>
 
       {/* เดิม w-[400px] ตายตัว ล้นจอบนมือถือ (375px) เพราะการ์ดกว้างกว่าจอเอง — ใช้ w-full
           แล้วจำกัดสูงสุดที่ 400px แทน จะได้เต็มความกว้างบนมือถือแต่ไม่ขยายเกิน 400px บนจอใหญ่ */}
-      <div className="w-full max-w-[400px] rounded-[14px] border border-subtle bg-background p-10">
+      <motion.div
+        variants={itemVariants}
+        className="w-full max-w-[400px] rounded-[14px] border border-subtle bg-background p-10"
+      >
         <div className="mb-6">
           <h2 className="text-[24px] font-semibold tracking-[-0.2px] text-ink">เข้าสู่ระบบ</h2>
           <p className="mt-2 text-[14px] text-muted">ยินดีต้อนรับกลับมาที่ DeskLab</p>
         </div>
 
         {justRegistered && (
-          <p className="mb-4 rounded-lg bg-sunken px-3.5 py-2.5 text-center text-sm text-muted">
+          <motion.p
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, ease: "easeOut" }}
+            className="mb-4 rounded-lg bg-sunken px-3.5 py-2.5 text-center text-sm text-muted"
+          >
             สมัครสมาชิกสำเร็จ กรุณาเข้าสู่ระบบ (หากเปิดใช้การยืนยันอีเมล กรุณายืนยันในอีเมลก่อน)
-          </p>
+          </motion.p>
         )}
 
         {justResetPassword && (
-          <p className="mb-4 rounded-lg bg-sunken px-3.5 py-2.5 text-center text-sm text-muted">
+          <motion.p
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, ease: "easeOut" }}
+            className="mb-4 rounded-lg bg-sunken px-3.5 py-2.5 text-center text-sm text-muted"
+          >
             ตั้งรหัสผ่านใหม่สำเร็จแล้ว กรุณาเข้าสู่ระบบด้วยรหัสผ่านใหม่
-          </p>
+          </motion.p>
         )}
 
-        <form action={formAction} className="flex flex-col gap-5">
-          <div className="flex flex-col gap-1.5">
+        <motion.form
+          action={formAction}
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="flex flex-col gap-5"
+        >
+          <motion.div variants={itemVariants} className="flex flex-col gap-1.5">
             <label htmlFor="email" className="text-[13px] font-medium text-muted">
               อีเมล
             </label>
@@ -65,9 +100,9 @@ export default function LoginForm({
               required
               className="h-[44px] w-full rounded-[10px] border border-default bg-background px-[14px] text-[14px] outline-none transition focus:border-ink"
             />
-          </div>
+          </motion.div>
 
-          <div className="flex flex-col gap-1.5">
+          <motion.div variants={itemVariants} className="flex flex-col gap-1.5">
             <label htmlFor="password" className="text-[13px] font-medium text-muted">
               รหัสผ่าน
             </label>
@@ -78,31 +113,42 @@ export default function LoginForm({
               autoComplete="current-password"
               required
             />
-          </div>
+          </motion.div>
 
-          <div className="text-right">
+          <motion.div variants={itemVariants} className="text-right">
             <Link
               href="/forgot-password"
               className="text-[13px] font-medium text-muted transition hover:text-ink"
             >
               ลืมรหัสผ่าน?
             </Link>
-          </div>
+          </motion.div>
 
-          {state?.error && (
-            <p className="rounded-lg border border-[color:var(--color-status-cancelled)]/30 bg-sunken px-3.5 py-2.5 text-sm text-[color:var(--color-status-cancelled)]">
-              {state.error}
-            </p>
-          )}
+          <AnimatePresence>
+            {state?.error && (
+              <motion.p
+                initial={{ opacity: 0, y: -6, height: 0 }}
+                animate={{ opacity: 1, y: 0, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
+                className="rounded-lg border border-[color:var(--color-status-cancelled)]/30 bg-sunken px-3.5 py-2.5 text-sm text-[color:var(--color-status-cancelled)]"
+              >
+                {state.error}
+              </motion.p>
+            )}
+          </AnimatePresence>
 
-          <button
+          <motion.button
+            variants={itemVariants}
+            whileHover={{ scale: 1.01 }}
+            whileTap={{ scale: 0.98 }}
             type="submit"
             disabled={isPending}
             className="h-[44px] w-full rounded-[10px] bg-ink text-[14px] font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isPending ? "⏳ กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ"}
-          </button>
-        </form>
+          </motion.button>
+        </motion.form>
 
         <div className="mt-6 text-center">
           <p className="text-[14px] text-muted">
@@ -112,7 +158,7 @@ export default function LoginForm({
             </Link>
           </p>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
