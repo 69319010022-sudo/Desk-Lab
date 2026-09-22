@@ -148,6 +148,25 @@ export async function createCardCharge(
   };
 }
 
+export function isOpnTestMode(): boolean {
+  return (process.env.OPN_SECRET_KEY ?? "").startsWith("skey_test_");
+}
+
+// จำลองว่าลูกค้าสแกนจ่ายแล้ว — endpoint นี้ของ Opn ใช้ได้เฉพาะโหมดทดสอบเท่านั้น
+// (โหมดทดสอบไม่มีการตัดเงินจริง สแกน QR ด้วยแอปธนาคารจริงจึงจ่ายไม่ได้)
+export async function markChargeAsPaid(chargeId: string): Promise<OpnChargeResult> {
+  if (!isOpnTestMode()) throw new Error("markChargeAsPaid ใช้ได้เฉพาะโหมดทดสอบเท่านั้น");
+  const res = await fetch(`${OPN_API_BASE}/charges/${chargeId}/mark_as_paid`, {
+    method: "POST",
+    headers: { Authorization: authHeader() },
+  });
+  const charge: OmiseChargeResponse = await res.json();
+  if (!res.ok) {
+    throw new Error("จำลองการชำระเงินไม่สำเร็จ: " + (charge?.message ?? res.statusText));
+  }
+  return toChargeResult(charge);
+}
+
 // ตรวจสอบสถานะ charge ปัจจุบันกับ Opn ตรงๆ — ใช้แทน webhook ระหว่างพัฒนาบน localhost
 // (localhost รับ webhook จริงจาก Opn ไม่ได้ ต้องมี public URL เช่น ngrok ถึงจะรับได้)
 export async function getCharge(chargeId: string): Promise<OpnChargeResult> {

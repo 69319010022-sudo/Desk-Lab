@@ -17,8 +17,11 @@ function formatCountdown(totalSeconds: number) {
 
 // นับถอยหลังจนถึงเวลาจริง (epoch ms) แทนการลดทีละ 1 จากค่าคงที่ — ทำให้เวลานับถอยหลังตรงกับ
 // เวลาหมดอายุจริงของ Opn เสมอ ไม่ว่าจะโหลดหน้าซ้ำ สลับแท็บ หรือเครื่องหน่วงแค่ไหนก็ตาม
+// จำกัดไม่เกิน 30 นาทีเสมอ กันกรณีนาฬิกาเครื่องลูกค้า/เซิร์ฟเวอร์ไม่ตรงกันจนนับถอยหลังยาวเกินจริง
+const MAX_COUNTDOWN_SECONDS = 30 * 60;
+
 function secondsUntil(target: number) {
-  return Math.max(0, Math.round((target - Date.now()) / 1000));
+  return Math.min(MAX_COUNTDOWN_SECONDS, Math.max(0, Math.round((target - Date.now()) / 1000)));
 }
 
 export default function PromptPayStatus({
@@ -88,7 +91,7 @@ export default function PromptPayStatus({
   if (result.status === "successful") {
     return (
       <div className="w-full max-w-sm space-y-3 rounded-2xl border border-[color:var(--color-status-delivered)]/30 bg-surface p-6 text-center">
-        <p className="text-base font-bold text-[color:var(--color-status-delivered)]">ชำระเงินสำเร็จแล้ว</p>
+        <p className="text-base font-bold text-[color:var(--color-status-delivered)]">ชำระเงินเสร็จสิ้น</p>
         <button
           type="button"
           onClick={() => router.push(`/account/orders/${orderId}`)}
@@ -139,7 +142,7 @@ export default function PromptPayStatus({
             onClick={() => {
               setStatusMessage(null);
               startChecking(async () => {
-                const r: PaymentStatusResult = await checkPromptPayStatusAction(orderId);
+                const r: PaymentStatusResult = await checkPromptPayStatusAction(orderId, true);
                 if (!r.ok) {
                   setStatusMessage(r.error);
                 } else if (r.status === "successful") {

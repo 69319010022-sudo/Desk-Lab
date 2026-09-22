@@ -4,7 +4,13 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { fireAndForgetLog } from "@/lib/actions/logging";
-import { createPromptPayCharge, getCharge, type OpnChargeStatus } from "@/lib/payments/opn";
+import {
+  createPromptPayCharge,
+  getCharge,
+  isOpnTestMode,
+  markChargeAsPaid,
+  type OpnChargeStatus,
+} from "@/lib/payments/opn";
 
 // ตรวจว่า order นี้เป็นของผู้ใช้ที่ล็อกอินอยู่จริง — ต้องเช็คเองทุกครั้งก่อนใช้ service client
 // เพราะ service client ข้าม RLS ได้หมด (ไม่มี Postgres ช่วยกันสิทธิ์ให้แล้ว)
@@ -92,7 +98,11 @@ export type PaymentStatusResult =
 
 // ปุ่ม "ตรวจสอบสถานะการชำระเงิน" — เรียก Opn ตรงๆ แทนการรอ webhook
 // (เว็บรันบน localhost ตอนพัฒนา รับ webhook จริงจาก Opn เข้ามาไม่ถึง)
-export async function checkPromptPayStatusAction(orderId: number): Promise<PaymentStatusResult> {
+// simulatePayment: ส่ง true เฉพาะตอนลูกค้ากดปุ่มเอง — ตอนเช็คอัตโนมัติเมื่อหมดเวลาต้องไม่จำลองจ่าย
+export async function checkPromptPayStatusAction(
+  orderId: number,
+  simulatePayment = false,
+): Promise<PaymentStatusResult> {
   const owned = await assertOwnOrder(orderId);
   if (!owned) return { ok: false, error: "ไม่พบคำสั่งซื้อนี้" };
 
@@ -118,6 +128,11 @@ export async function checkPromptPayStatusAction(orderId: number): Promise<Payme
       new Date(charge.expiresAt).getTime() <= Date.now()
     ) {
       charge = { ...charge, status: "expired" };
+    }
+
+    // โหมดทดสอบ: กดปุ่มตรวจสอบแล้วถือว่าชำระเงินเสร็จสิ้นทันที (QR ยังไม่หมดอายุเท่านั้น)
+    if (simulatePayment && charge.status === "pending" && isOpnTestMode()) {
+      charge = await markChargeAsPaid(charge.chargeId);
     }
 
     if (charge.status === "successful") {
