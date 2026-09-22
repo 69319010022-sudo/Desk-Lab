@@ -88,6 +88,18 @@ export async function addToCart(formData: FormData): Promise<void> {
   await performAddToCart(formData);
 }
 
+// ปุ่ม "ซื้อทันที" ในหน้ารายละเอียดสินค้า — เพิ่มสินค้าลงตะกร้าเหมือน addToCartAction แล้วพาไปหน้า
+// checkout ต่อทันที (checkout เดิมอ่านจากตะกร้าเสมอ ไม่มี flow "ซื้อเดี่ยว" แยกต่างหาก จึงต่อผ่าน
+// ตะกร้าเพื่อใช้ระบบที่อยู่/ชำระเงินเดิมที่ทดสอบผ่านแล้วทั้งหมดโดยไม่ต้องรื้อ CheckoutForm/createOrderAction)
+export async function buyNowAction(
+  _prevState: CartActionState,
+  formData: FormData,
+): Promise<CartActionState> {
+  const result = await performAddToCart(formData);
+  if (result?.error) return result;
+  redirect("/checkout");
+}
+
 // ปุ่ม +/− ในหน้าตะกร้า ส่งจำนวนใหม่ที่คำนวณไว้แล้วมาให้เลย (คำนวณที่ฝั่งเซิร์ฟเวอร์ตอน
 // render หน้าตะกร้า) ถ้าจำนวนใหม่ <= 0 คือลบแถวทิ้ง — เป็น <form> ธรรมดา ไม่ต้องมี client state
 export async function updateCartItemQuantity(formData: FormData): Promise<void> {

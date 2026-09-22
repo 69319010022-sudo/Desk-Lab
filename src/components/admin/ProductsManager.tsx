@@ -14,7 +14,10 @@ function ToggleActiveButton({ id, isActive }: { id: number; isActive: boolean })
     <form action={toggleProductActiveAction}>
       <input type="hidden" name="id" value={id} />
       <input type="hidden" name="next_active" value={(!isActive).toString()} />
-      <button type="submit" className="text-xs font-medium text-muted hover:text-ink hover:underline">
+      <button
+        type="submit"
+        className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-ink transition-colors hover:bg-surface"
+      >
         {isActive ? "ปิดการขาย" : "เปิดการขาย"}
       </button>
     </form>
@@ -32,7 +35,7 @@ function DeleteProductButton({ id, name }: { id: number; name: string }) {
         onClick={(e) => {
           if (!confirm(`ลบ "${name}" ใช่หรือไม่?`)) e.preventDefault();
         }}
-        className="text-xs font-medium text-[color:var(--color-status-cancelled)] hover:underline disabled:opacity-50"
+        className="rounded-lg border border-[color:var(--color-status-cancelled)]/30 px-3 py-1.5 text-xs font-medium text-[color:var(--color-status-cancelled)] transition-colors hover:bg-[color:var(--color-status-cancelled-bg)] disabled:cursor-not-allowed disabled:opacity-50"
       >
         {isPending ? "กำลังลบ..." : "ลบ"}
       </button>
@@ -117,10 +120,10 @@ export default function ProductsManager({
                   </td>
 
                   <td className="py-3 text-right">
-                    <div className="flex flex-col items-end gap-1.5">
+                    <div className="flex flex-wrap items-center justify-end gap-2">
                       <button
                         onClick={() => setModalProduct(product)}
-                        className="text-xs font-medium text-muted hover:text-ink hover:underline"
+                        className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-ink transition-colors hover:bg-surface"
                       >
                         แก้ไข
                       </button>

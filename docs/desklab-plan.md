@@ -262,104 +262,54 @@ Rail ซ้าย 76px, Top bar 68px, ตัวเลข IBM Plex Mono, ข้�
 
 ผู้ใช้แจ้งว่า **ฟีเจอร์หลักๆ ที่วางแผนไว้ทำครบหมดแล้ว ขอพักงานไว้ก่อน** — เซสชันถัดไปเปิดไฟล์นี้แล้วอ่านหัวข้อ "ขั้นต่อไปที่แนะนำ" ด้านล่างได้เลยว่ามีอะไรค้างเป็นตัวเลือกอยู่บ้าง ไม่มีงานเร่งด่วนที่ต้องทำต่อทันที
 
-## 🔜 ขั้นต่อไปที่แนะนำ (2026-09-18 ล่าสุด)
+## 🔜 ขั้นต่อไปที่แนะนำ (2026-09-22 ล่าสุด)
 
-**⏸️ งาน Micro-animation พักไว้ก่อน (2026-09-18)**: ผู้ใช้แจ้งให้พักงานแอนิเมชันไว้ก่อน (ทำเสร็จไปแล้ว 6 ขั้นตอน: Shop card hover/zoom/tap, fade-in/stagger, add-to-cart feedback, Product-Detail gallery, Home hero, Cart) — **คิวที่เหลือ (Checkout, Order-History, Admin Dashboard) ยังไม่ได้ทำ เก็บไว้ทำทีหลัง** — ตอนนี้เปลี่ยนไปทำ **Deploy ร้านค้าขึ้นโฮสต์จริง** แทน (ดูหัวข้อถัดไป)
+**✅ แผน "โหลดหน้าช้า + Responsive มือถือ/ไอแพด" (2026-09-21/22) — ปิดงานสมบูรณ์ทั้ง 2 ส่วนแล้ว commit/push ขึ้น GitHub ครบ**
 
-**🎉 Deploy ร้านค้าขึ้น Vercel — สำเร็จสมบูรณ์แล้ว 100% (2026-09-18)**: URL จริงคือ **https://desk-lab-omega.vercel.app/** — ครบทั้ง 7 ขั้นตอนตามแผน (commit/push `9641ccb` → build ยืนยันผ่าน 100% → เชื่อม GitHub repo กับ Vercel สำเร็จ (ข้ามส่วน "Optional Integrations → Add Supabase" ของ Vercel เพราะจะไปสร้าง/เชื่อม Supabase project ใหม่แทนโปรเจกต์เดิมที่มีข้อมูลจริงอยู่แล้ว ใช้วิธีกรอก env vars เองแทน) → กรอก Environment Variables ครบ 5 ตัวเอง (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `OPN_SECRET_KEY`, `NEXT_PUBLIC_OPN_PUBLIC_KEY`, `SUPABASE_SERVICE_ROLE_KEY`) → กด Deploy สำเร็จ → **ตรวจสอบผ่าน built-in browser ครบ 4 หน้าแล้ว ไม่มี Runtime Error/console error เลย**: Home (สินค้าจริงขึ้นครบ, การ์ดสถิติ 10 รายการ/3 ช่องทางชำระเงิน/1-3 วัน), Shop (สินค้าครบ 10 รายการ พร้อมแอนิเมชัน fade-in/stagger ทำงานถูกต้อง), Login (ฟอร์มแสดงผลถูกต้อง), Cart (empty state ถูกต้องสำหรับผู้ที่ยังไม่ล็อกอิน) — เชื่อม Supabase project เดิมได้จริง (เห็นข้อมูลสินค้า/ราคา/รูปตรงกับฐานข้อมูลจริงทุกอย่าง)
-- **โดเมน**: ใช้ `xxx.vercel.app` ฟรีของ Vercel ตามที่ตกลงไว้ (ยังไม่ผูกโดเมนของตัวเอง)
-- **Payment gateway**: ยังเป็นโหมดทดสอบ/sandbox ตามแผน (ยังไม่ได้ทดสอบขั้นตอนชำระเงินจริงบนเว็บ production — เป็นขอบเขตที่ตั้งใจเก็บไว้ทำทีหลัง)
-- **ยังไม่ได้ทดสอบบนเว็บ production**: ล็อกอิน/สมัครสมาชิกจริง, เพิ่มสินค้าลงตะกร้าจริง, checkout จริง (ทดสอบแค่หน้า static/read-only ผ่านหมด) — แนะนำให้ผู้ใช้ทดสอบ flow แบบเต็มด้วยตัวเอง (สมัคร/ล็อกอิน/เพิ่มตะกร้า/checkout) แล้วแจ้งผลได้เลยถ้าเจอปัญหา
-- **Auto-deploy**: ทุกครั้งที่ push โค้ดใหม่ขึ้น `main` Vercel จะ build/deploy ให้อัตโนมัติ (ไม่ต้องกด deploy เองอีกแล้วในอนาคต ยกเว้นเปลี่ยน env vars ต้องกด Redeploy เอง)
-- รายละเอียดเต็มของแผนดูที่หัวข้อ "🆕 Deploy ร้านค้าขึ้น Production" ด้านล่าง
+**ส่วนที่ 1 (ความเร็วโหลดหน้า) — เสร็จแล้ว, commit `b49064e`**: วินิจฉัยจริงพบว่าส่วนใหญ่ของแอปใช้ `Promise.all` อยู่แล้ว (Home/Shop/Checkout/Cart) และ `catalog.ts` ไม่มี `select('*')` เกินจำเป็นอยู่แล้ว — จุดที่แก้จริงมีจุดเดียว: `product/[slug]/page.tsx` เคยดึง `getCategories()` แยกทีหลัง `getProductBySlug()` ทั้งที่ไม่เกี่ยวกัน รวมเป็น `Promise.all` เดียวแล้ว — เพิ่ม `loading.tsx` (skeleton) ให้ `/shop`, `/product/[slug]`, `/cart`, `/checkout`, `/account/orders` (หน้า Admin ยังไม่ทำ ต่ำสุดในลำดับความสำคัญ) — ผ่าน type-check/lint/build + ทดสอบเบราว์เซอร์จริงทุกหน้าไม่มี error
 
-**✅ บั๊ก "แอดมินไปอยู่หน้าลูกค้าหลัง restart" ปิดสมบูรณ์แล้ว 100%** (ดูหัวข้อ "พบสาเหตุจริงและแก้เสร็จสมบูรณ์แล้ว" ด้านบน) — **ผู้ใช้ทดสอบจริงด้วยบัญชีแอดมินจริง `Admin_Poonyapat` แล้วยืนยันว่าเข้าหน้า Dashboard ได้ถูกต้องตามที่ควรเป็น (2026-09-13)** — ปิดเคสนี้เรียบร้อย
+**ส่วนที่ 2 (Responsive มือถือ/ไอแพด) — เสร็จแล้ว, commit `e0d9ea2`**: ทดสอบทุกหน้าลูกค้าจริงที่ 375px/768px/1024px + regression check ที่ desktop ผ่าน built-in browser พบและแก้บั๊กจริง 6 จุด:
+1. **`shop/page.tsx` + `CartAside.tsx`** — คอนเทนเนอร์เดิมเป็น `flex` row ตายตัว + `CartAside` กว้างคงที่ 340px ล้น/บีบกริดสินค้าจนแตกบนจอ <1024px — แก้เป็น `flex-col` สแต็กก่อน แล้วเป็น `lg:flex-row`/`lg:w-[340px]` ที่ 1024px ขึ้นไป
+2. **`LoginForm.tsx` + `RegisterForm.tsx`** — การ์ดฟอร์มกว้างคงที่ `w-[400px]` ล้นจอมือถือ 375px ตรงๆ (400 > 375) — แก้เป็น `w-full max-w-[400px]`
+3. **`AddressCard.tsx`** — div ฝั่งซ้ายไม่มี `min-w-0` ที่อยู่ยาวๆ อาจดันการ์ดกว้างเกินจอได้ — เพิ่ม `min-w-0`
+4. **Home/Shop/Checkout/Product-detail** — padding ข้างตายตัว `px-[28px]` กินพื้นที่จอมือถือเกินจำเป็น — ลดเหลือ `px-4` บนมือถือ/แท็บเล็ต กลับไป `px-[28px]` ที่ `lg:` ให้ตรงกับ Cart ที่เคยแก้ไปแล้วรอบก่อน
+5. **`account/orders/loading.tsx`** — เดิมใส่ `px-[28px]` เพิ่มเองทั้งที่หน้าจริงไม่มี padding ของตัวเอง (พึ่ง `Container` จาก `account/layout.tsx`) ทำให้ skeleton เยื้องผิดตำแหน่งเทียบกับเนื้อหาจริง — ตัดออก
+6. อัปเดต `loading.tsx` ทั้งหมดที่เกี่ยวข้องให้ตรงกับโครงสร้างใหม่
 
-**✅ ระบบ Multi-DB — ครบทั้ง 3 ขั้นตอนแล้ว รวมทั้ง 2 รอบ (SQLite/MySQL/MongoDB สร้างตาราง → อัปเดตให้ตรง schema จริงหลัง sync ERD)** — เป็น placeholder เท่านั้น ยังไม่เชื่อม API/sync/failover
+**ที่ตรวจแล้วว่า "responsive ดีอยู่แล้ว ไม่ต้องแก้"**: Home hero/category/featured grid, `ShopCatalog.tsx` (chip แถวเลื่อนแนวนอน + grid 2/3 คอลัมน์), `CheckoutForm.tsx` (`flex-col lg:flex-row`/`w-full lg:w-80` อยู่แล้ว), `account/orders/page.tsx` + `account/layout.tsx` + `AccountSidebar.tsx` (สแต็กแนวตั้งบนมือถือ, แถวบน `md:`/`lg:` อยู่แล้ว), `ProfileForm.tsx`, `cart/page.tsx` + `CartAnimatedSections.tsx` (แก้ไปแล้วรอบก่อน 2026-09-18), `ProductGallery.tsx`/`ProductTabs.tsx`/`ProductCard.tsx`, `Footer.tsx` (`grid-cols-1 sm:grid-cols-2 md:grid-cols-3`), `TopBar.tsx` (แก้ไปแล้วรอบก่อน), `account/orders/[id]/page.tsx`
 
-**✅ งานอัปเดตรูปสินค้าจริง + ชื่อ/ราคาจริง (2026-09-14)** ครบ 4 ขั้นตอน — พร้อมเจอและแก้บั๊ก RLS `is_admin()` ที่ทำให้ผู้เข้าชมแบบไม่ล็อกอิน (anon) เห็นหน้า Shop ว่างเปล่ามาตั้งแต่ 2026-09-11 ไปด้วย (แก้แล้วสมบูรณ์)
+**จุดที่รู้อยู่แล้วว่ายังไม่ได้แตะ/เป็นทางเลือกในอนาคต**:
+- **Rail.tsx (แถบเมนูซ้าย 76px ถาวรทุกหน้า)** — ไม่ได้ทำ responsive ให้ (เช่น ยุบเป็น bottom-nav บนมือถือ) เพราะเป็นการเปลี่ยนโครง navigation หลักทั้งเว็บ ใหญ่กว่าขอบเขต "แก้บั๊ก overflow" รอบนี้ + ไม่ได้ทำให้ UI ล้น (กว้างคงที่แต่ไม่ error) เก็บไว้เป็นตัวเลือกถ้าผู้ใช้ต้องการปรับ navigation จริงๆ ในอนาคต
+- **Admin pages** (`/admin/dashboard`, `/admin/products`, `/admin/orders`, `/admin/analytics`) — ยังไม่ได้ตรวจ responsive เลยรอบนี้ (priority ต่ำสุดตามแผนเดิม เพราะเป็นหน้าฝั่งพนักงานใช้งานบนจอกว้างเป็นหลัก)
+- **Admin routes ยังไม่มี `loading.tsx`** — deferred จากแผนเดิมส่วนที่ 1 เช่นกัน
 
-**✅ Admin Dashboard — commit/push ขึ้น GitHub แล้วจริง (จากอีกเซสชัน, ยืนยัน 2026-09-16)**: commit ล่าสุดคือ `465e1ad` (แทนที่ `d3fa441` เดิม) มี component เสริม `WeeklySalesLineChart.tsx`/`TrendBadge.tsx` และแก้ lint `ShopCatalog.tsx` (`react-hooks/set-state-in-effect`) แล้ว — ยังไม่ได้เข้าเช็ค GitHub Actions ว่าเขียวจริงหลัง push รอบนี้, ปุ่ม "ตะกร้า" ที่เหลือค้างใน `AdminTopBar.tsx` (ไม่มีความหมายกับแอดมิน) ยังไม่ยืนยันว่าแก้แล้วหรือยัง
+**ยืนยันคุณภาพก่อน commit ทั้ง 2 รอบ**: `npm run type-check` (0 error), `npm run lint` (0 error, มีแค่ warning เดิม 5 จุดเรื่อง `<img>` ที่ไม่เกี่ยวข้อง), `npm run build` (ผ่าน 100% ครบ 24 route) — ทดสอบเบราว์เซอร์จริงที่ 375px/768px/1024px + regression ที่ desktop ทุกครั้ง
 
-**⚠️ เหตุการณ์ที่พบและแก้แล้ว (2026-09-16)**: เปิดไฟล์นี้มาพบว่าถูกเขียนทับบางส่วน (อีกเซสชัน/VS Code ใช้สำเนาเก่าเขียนทับด้วย `project_write` ซึ่งแทนที่ทั้งไฟล์ ไม่ใช่ merge) — กู้คืนประวัติที่หายไปทั้งหมดกลับมาแล้ว พร้อมรวมข้อมูลใหม่จากอีกเซสชัน (หัวข้อ Admin Dashboard commit ด้านบน) เข้าไว้ด้วยกัน — ตรวจสอบแล้วว่างานจริงใน Supabase (products, RLS policies, activity_logs) ไม่ได้เสียหาย มีแค่บันทึกในเอกสารที่หายไปเท่านั้น **บทเรียน**: ถ้ามีหลาย Claude session ทำงานโปรเจกต์เดียวกันพร้อมกัน (เว็บ/VS Code ฯลฯ) ควรให้แต่ละเซสชันอ่านไฟล์นี้ให้ล่าสุดก่อนเขียนทับเสมอ
-
-**✅ กำลังทำ (2026-09-18): แก้รูปสินค้าในหน้า Product-Detail ที่ใหญ่เกินไป — เสร็จสมบูรณ์แล้ว deploy ขึ้น production แล้ว**
-
-ผู้ใช้ส่ง screenshot หน้า Product-Detail จริงบน production (สินค้า "โคมไฟ LED ตั้งโต๊ะ Artisan Lighting Phuket" SKU `DL-MONO-AL01` ฿1,090) พบว่ากล่องรูปสินค้าใหญ่/สูงเกินจริงมาก มีที่ว่างรอบตัวสินค้าเยอะเกินไป แล้วขอ "ช่วยแก้รูปสินค้าให้ผมหน่อยมันใหญ่เกินไป"
-
-**สาเหตุที่วินิจฉัยจากโค้ดจริง**:
-- `src/app/(site)/product/[slug]/page.tsx` ใช้ `grid-cols-[1fr_420px]` (คอลัมน์รูปสินค้าเป็น `1fr` ไม่มี max-width จำกัดไว้, คอลัมน์ข้อมูล/ปุ่มซื้อคงที่ 420px)
-- `src/components/ProductGallery.tsx` กล่องรูปหลักใช้ `aspect-square` (สัดส่วน 1:1) อยู่ในคอลัมน์ `1fr` ที่ไม่มีเพดานความกว้าง — บนจอกว้าง คอลัมน์นี้ขยายกว้างมาก ทำให้กล่อง aspect-square สูงตามไปด้วยมาก กลายเป็นกล่องใหญ่ผิดปกติ ยิ่งสินค้าเป็นของทรงเรียว (โคมไฟ) ที่ใช้ `object-contain` กับ `p-8` เดิม จะยิ่งเห็นที่ว่างรอบขอบเยอะมาก
-
-**แนวทางแก้ไข (ทำเฉพาะ CSS/layout ไม่แตะ logic/data)**:
-- เพิ่ม `max-w-[480px]` (หรือใกล้เคียง) + `mx-auto` ให้กล่องรูปหลักใน `ProductGallery.tsx` (ทั้งกรณีมีรูปและกรณี placeholder ไม่มีรูป) เพื่อจำกัดไม่ให้ขยายเกินขนาดที่เหมาะสมตามคอลัมน์ `1fr` ที่กว้างมากบนจอใหญ่ — thumbnail grid ด้านล่างก็ปรับให้อยู่ในความกว้างเดียวกัน
-- ไม่แตะ `page.tsx` (โครง grid-cols เดิมยังเหมือนเดิม เพื่อไม่กระทบเลย์เอาต์ฝั่งขวา/ปุ่มซื้อ) — แก้เฉพาะใน component `ProductGallery.tsx` พอ
-
-**ผู้ใช้ถาม (2026-09-18)**: "แก้ทุกสินค้าเลยมั้ยหรือแค่อันเดียว" — **ตอบแล้ว**: การแก้อยู่ใน `ProductGallery.tsx` ซึ่งเป็น component กลางที่ทุกหน้า Product-Detail ใช้ร่วมกัน จึงมีผลกับสินค้าทั้ง 10 รายการโดยอัตโนมัติ ไม่ต้องแก้ทีละสินค้า
-
-**✅ แก้โค้ดแล้วและทดสอบผ่านแล้ว (2026-09-18)**: แก้ `src/components/ProductGallery.tsx` เพิ่ม `mx-auto flex w-full max-w-[480px] flex-col gap-3` แทนที่ `flex flex-col gap-3` เดิมทั้ง 2 จุด (กรณีมีรูปจริง และกรณี placeholder ไม่มีรูป) — ไม่แตะ `page.tsx` เลยตามแผน — ทดสอบผ่านทั้ง desktop 1440px/800px และ mobile 375px บน dev server ไม่มี console error
+**Commit/Push**: ผู้ใช้อนุมัติล่วงหน้า ("ทำResponsive มือถือ/ไอแพดเสร็จแล้ว Commit/push ได้เลย") — แยกเป็น 2 commit ตามลำดับที่ทำเสร็จ:
+- `b49064e` "perf: parallelize product-detail data fetch and add loading skeletons" (ส่วนที่ 1)
+- `e0d9ea2` "fix: responsive layout for mobile and tablet screens" (ส่วนที่ 2)
+ทั้งคู่ push ขึ้น `main` แล้ว (`fb992a1..b49064e..e0d9ea2`) — Vercel จะ auto-deploy ให้อัตโนมัติ (ยังไม่ได้เข้าไปตรวจสอบผลลัพธ์บน production จริงหลัง deploy รอบนี้ — เป็นขั้นต่อไปที่แนะนำถ้าผู้ใช้ต้องการให้ตรวจสอบต่อ)
 
 ---
 
-## 🆕 แก้หน้าจอโทรศัพท์ที่เละเทะ (หน้า Cart) — เสร็จสมบูรณ์แล้ว commit/push/deploy ครบ + ตรวจสอบ production แล้ว (2026-09-18)
+**⏸️ งาน Micro-animation พักไว้ก่อน (2026-09-18)**: ผู้ใช้แจ้งให้พักงานแอนิเมชันไว้ก่อน (ทำเสร็จไปแล้ว 6 ขั้นตอน: Shop card hover/zoom/tap, fade-in/stagger, add-to-cart feedback, Product-Detail gallery, Home hero, Cart) — **คิวที่เหลือ (Checkout, Order-History, Admin Dashboard) ยังไม่ได้ทำ เก็บไว้ทำทีหลัง**
 
-**คำขอผู้ใช้**: ส่ง screenshot หน้า Cart จริงบน production (`desk-lab-omega.vercel.app`) เปิดจาก Instagram in-app browser บนมือถือ มีสินค้า 2 ชิ้นในตะกร้า พบว่าเลย์เอาต์เละเทะมาก: กล่อง "สรุปคำสั่งซื้อ" ลอยทับหัวข้อ/ช่องค้นหาด้านบน ชื่อสินค้าถูกบีบจนตัวหนังสือขึ้นบรรทัดใหม่ทีละคำ ปุ่มเพิ่ม/ลดจำนวนบีบอัดจนอ่านยาก — "มีอีกส่วนอยากให้แก้ในเรื่องของหน้าจอโทรศัพท์ที่รูปแบบหน้าจอเละเทะ"
-
-**วินิจฉัยจากการรัน dev server จริง + จำลองสถานการณ์เดียวกับผู้ใช้** (ล็อกอิน `bruno_test_a`, เพิ่มสินค้า 2 ชิ้นลงตะกร้า, เปิดที่ viewport มือถือ 375px): reproduce ปัญหาได้ตรงกับ screenshot ผู้ใช้เป๊ะ สาเหตุมาจาก **2 จุดที่ไม่มี responsive breakpoint เลย**:
-
-1. **`src/app/(site)/cart/page.tsx`**: container หลักใช้ `flex gap-[24px] px-[28px]...` (แนวนอนเสมอ ไม่มี `flex-col` สำหรับจอเล็ก) ประกอบกับ `OrderSummaryPanel` (ใน `src/app/(site)/cart/CartAnimatedSections.tsx`) ใช้ `w-[340px] shrink-0` (ความกว้างคงที่ ไม่ยอมหด) — บนจอมือถือที่พื้นที่เหลือหลังหัก Rail 76px มีแค่ ~299px, กล่องสรุป 340px ไม่พอที่จะหด ทำให้คอลัมน์รายการสินค้า (`min-w-0 flex-1`) ถูกบีบจนแคบเกือบ 0 (ตัวหนังสือเลยขึ้นบรรทัดใหม่ทีละคำ) และกล่องสรุปล้นออกมาทับพื้นที่เกือบทั้งหมดของจอ ดูเหมือนลอยทับเนื้อหา
-2. **`src/components/TopBar.tsx`** (ใช้ร่วมกันทุกหน้าใน `(site)/layout.tsx`): ช่องค้นหาคงที่ `w-[220px]` + ปุ่มตะกร้าคงที่ `w-[180px]` + avatar 38px + padding `px-[28px]` รวมกันกว้างเกิน 299px ที่มีบนจอมือถือไปมาก ไม่มี responsive breakpoint เลยสักจุด ทำให้หัวข้อหน้า (h1) ถูกบีบทับซ้อนกับช่องค้นหา — ปัญหานี้เกิดขึ้น**ทุกหน้าในเว็บ** ไม่ใช่แค่หน้า Cart (Cart เป็นแค่หน้าที่ผู้ใช้เจอและถ่ายภาพมา)
-
-**แนวทางแก้ไข (เฉพาะ CSS/responsive classes เพิ่ม breakpoint `lg:` ให้ตรงกับที่ใช้อยู่แล้วในหน้า Product-detail — ไม่แตะ logic/data)**:
-- `TopBar.tsx`: ลด padding เหลือ `px-4 lg:px-[28px]`, ซ่อนช่องค้นหา (`hidden md:flex`) บนจอเล็ก (หน้า Shop มีช่องค้นหาของตัวเองอยู่แล้วในหน้าเนื้อหา ไม่เสียฟังก์ชัน), ปุ่มตะกร้าเปลี่ยนจากความกว้างคงที่ `w-[180px]` เป็น `w-auto` และซ่อนข้อความ "N รายการ" บนจอเล็ก (`hidden sm:inline`) เหลือแค่ไอคอน+ยอดเงินให้กระชับ
-- `cart/page.tsx`: container หลักเปลี่ยนเป็น `flex flex-col gap-[24px] px-4 pb-[28px] pt-[24px] lg:flex-row lg:px-[28px]` (สแต็กแนวตั้งบนจอเล็ก จอใหญ่ยังเรียงแนวนอนเหมือนเดิม)
-- `CartAnimatedSections.tsx` (`OrderSummaryPanel`): เปลี่ยน `w-[340px] shrink-0` เป็น `w-full lg:w-[340px] lg:shrink-0`
-
-**ขอบเขต**: แก้เฉพาะ TopBar (ทุกหน้า) + Cart page mobile stacking รอบนี้ — หน้าอื่นที่อาจมีปัญหาคล้ายกัน (Checkout, Shop, Account) ยังไม่ได้ตรวจ เก็บไว้เป็นตัวเลือกถ้าผู้ใช้เจอปัญหาเพิ่มทีหลัง
-
-**✅ แก้โค้ดแล้วและทดสอบผ่านแล้ว (2026-09-18)**:
-- `src/components/TopBar.tsx`: `px-4 lg:px-[28px]`, header title เพิ่ม `min-w-0`/`truncate` กันล้น, ช่องค้นหาเปลี่ยนเป็น `hidden md:flex` (ซ่อนบนมือถือ), ปุ่มตะกร้าเปลี่ยนจาก `w-[180px]` คงที่เป็น `w-auto` และซ่อนข้อความ "N รายการ" กับเส้นคั่นด้วย `hidden sm:inline`/`hidden sm:block` เหลือแค่ไอคอน+ยอดเงินบนมือถือ
-- `src/app/(site)/cart/page.tsx`: container หลักเปลี่ยนเป็น `flex flex-col gap-[24px] px-4 pb-[28px] pt-[24px] lg:flex-row lg:px-[28px]`
-- `src/app/(site)/cart/CartAnimatedSections.tsx`: `OrderSummaryPanel` เปลี่ยน `w-[340px] shrink-0` เป็น `w-full lg:w-[340px] lg:shrink-0`; **เพิ่มเติมนอกแผนเดิมเล็กน้อยแต่จำเป็น**: ระหว่างทดสอบพบว่าแต่ละแถวสินค้าใน `CartItemList` เองก็ไม่ responsive เช่นกัน (บีบจนชื่อสินค้าขึ้นบรรทัดใหม่ทีละคำ) จึงแก้เพิ่มด้วย โดยจัดกลุ่มแต่ละแถวเป็น 2 ก้อนย่อย (รูป+ชื่อ / ปุ่มจำนวน+ราคา+ลบ) ใช้ `flex flex-col ... sm:flex-row` กับก้อนย่อยใช้ `sm:contents` ให้กลับไปเป็นแถวเดียวเหมือนเดิมทุกอย่างบนจอ ≥640px
-
-**ทดสอบแล้ว (บน dev server ก่อน push)**: ล็อกอินด้วยบัญชีทดสอบ `bruno_test_a`, เพิ่มสินค้า 2 ชิ้นลงตะกร้าเหมือนสถานการณ์ผู้ใช้ (โคมไฟ ฿1,090 + แผ่นรองเมาส์ ฿2,500) เปิดที่ viewport มือถือ 375px ในแท็บใหม่ (console สะอาด ไม่มี error) — เลย์เอาต์เรียบร้อย: การ์ดสรุปคำสั่งซื้ออยู่ใต้รายการสินค้าอย่างถูกต้อง ไม่ทับกันแล้ว, ชื่อสินค้าอ่านง่ายไม่ขึ้นบรรทัดทีละคำ, ปุ่มเพิ่ม/ลดจำนวน+ราคา+ปุ่มลบเรียงเป็นแถวเดียวกันได้สัดส่วนดี, TopBar ไม่มีการซ้อนทับหัวข้อกับช่องค้นหาอีกต่อไป — เช็คซ้ำที่จอกว้าง (800px) แล้วว่าหน้าตาเหมือนเดิมทุกอย่าง ไม่กระทบ desktop เลย
-
-**⚠️ พบเพิ่มเติมระหว่างทดสอบ (ยังไม่ได้แก้ นอกขอบเขตรอบนี้)**: หน้า Shop (`src/app/(site)/shop/CartAside.tsx` — วิดเจ็ต "ตะกร้าปัจจุบัน" ลอยขวาล่าง) ก็ล้นขอบจอบนมือถือเช่นกัน (ข้อความ/ปุ่มถูกตัดขอบขวา) — เป็นปัญหาแยกต่างหาก ไม่ได้อยู่ใน screenshot ที่ผู้ใช้ส่งมา ไม่ได้แก้รอบนี้ตามกติกา B (ทำทีละอย่าง) — แจ้งผู้ใช้ไว้เป็นตัวเลือกถ้าต้องการแก้ต่อ
-
-**✅ Commit + Push แล้ว (2026-09-18)**: ผู้ใช้ยืนยัน "commit/pushเลย" — รัน `npm run build` ยืนยันผ่าน 100% อีกครั้งก่อน push (24 route ครบ, TypeScript ผ่าน) → `git add` เฉพาะ 4 ไฟล์ที่แก้ (ไม่แตะโฟลเดอร์ `img/Logo/` ที่ untracked อยู่ ไม่เกี่ยวกับงานนี้) → commit `8ab5bcd` "fix: responsive layout for product gallery, cart page, and topbar on mobile" → `git push origin main` สำเร็จ (`9641ccb..8ab5bcd`) — รวมการแก้ทั้ง 2 เรื่อง (รูปสินค้าใหญ่เกินไป + มือถือเละเทะ) ไว้ใน commit เดียวกัน เพราะทั้งคู่ยังไม่เคย push ขึ้นมาก่อนเลยตั้งแต่ deploy — Vercel auto-deploy ให้อัตโนมัติ
-
-**✅ ตรวจสอบบน production จริงแล้วครบทุกจุด (2026-09-18, หลัง deploy)**: เปิด `https://desk-lab-omega.vercel.app` ด้วย built-in browser หลัง Vercel build/deploy เสร็จ (auto-deploy จาก commit `8ab5bcd`):
-- **TopBar มือถือ** (`/`, ยังไม่ล็อกอิน, viewport มือถือ): หัวข้อไม่ทับช่องค้นหาแล้ว ปุ่มตะกร้าเหลือแค่ไอคอน+ยอดเงินกระชับดี ✅
-- **หน้ารูปสินค้า** (product detail "ลำโพงบลูทูธ Creative Stage Soundbar" มือถือ): กล่องรูปขนาดพอดี ไม่ล้นเหมือนก่อนแก้ ✅
-- **หน้า Cart แบบมีสินค้าจริง** (ล็อกอินด้วยบัญชีทดสอบ `bruno.testa@desklab.test`, ตะกร้ามีของเดิมอยู่แล้ว 2 ชิ้น — โคมไฟ ฿1,090 + แผ่นรองเมาส์ ARTISAN ฿2,500 รวม ฿3,590 — ตรงกับสถานการณ์ผู้ใช้เป๊ะ): เปิดที่ viewport มือถือ 375px จริงบน production — แต่ละแถวสินค้าเรียงเป็น 2 แถวย่อยถูกต้อง (รูป+ชื่อ แถวบน / จำนวน+ราคา+ลบ แถวล่าง) อ่านง่าย ไม่ทับกัน, กล่องสรุปคำสั่งซื้อ+ปุ่ม "ดำเนินการชำระเงิน" อยู่ใต้รายการสินค้าเต็มความกว้างจอ ไม่ลอยทับส่วนอื่นอีกต่อไป — **ตรงกับสถานการณ์ที่ผู้ใช้ส่ง screenshot มาทุกจุด และแก้ได้ผลจริงบน production แล้ว** ✅
-- เช็ค console errors บนจอมือถือหน้า Cart แล้ว: ไม่มี error ใหม่จากงานที่แก้รอบนี้เลย (error 404 ที่เจอทั้งหมดเป็นของเดิมที่ไม่เกี่ยวข้อง — ดูหัวข้อถัดไป)
-
-**สถานะ**: ✅ **ปิดงานสมบูรณ์ 100%** — แก้โค้ด + ทดสอบ dev + commit/push + auto-deploy + ตรวจสอบ production จริงครบทุกจุดตามที่ผู้ใช้รายงานมา
-
----
-
-## 🆕 พบปัญหาใหม่ที่ไม่เกี่ยวข้อง (2026-09-18): ลิงก์ Footer ชี้ไปหน้าที่ยังไม่มีอยู่จริง (404)
-
-ระหว่างเช็ค console errors บน production หลัง deploy งานข้างต้น พบ 4 error `404` ที่ไม่เกี่ยวกับงานที่เพิ่งแก้เลย:
-`GET /help?_rsc=...`, `GET /help/shipping?_rsc=...`, `GET /help/warranty?_rsc=...`, `GET /about?_rsc=...` (ทั้งหมดเป็น Next.js `<Link>` prefetch request — เกิดขึ้นทันทีที่หน้าเว็บโหลด footer เพราะ Next.js prefetch ลิงก์ที่มองเห็นในหน้าจอโดยอัตโนมัติ)
-
-**ยืนยันสาเหตุแล้วจากการอ่าน `src/components/Footer.tsx` จริง**: คอลัมน์ "ช่วยเหลือ" ของ Footer มีลิงก์ 4 อัน (`คำถามที่พบบ่อย` → `/help`, `การจัดส่งสินค้า` → `/help/shipping`, `นโยบายการรับประกัน` → `/help/warranty`, `เกี่ยวกับเรา` → `/about`) แต่ **route เหล่านี้ไม่มีอยู่จริงในแอป Next.js เลย** (ไม่เคยสร้างหน้า `/help`, `/help/shipping`, `/help/warranty`, `/about`) — Footer อยู่ในทุกหน้าของเว็บ จึง 404 นี้เกิดขึ้นทุกหน้าที่มี Footer แสดง (แทบทุกหน้า)
-
-**เป็นปัญหาที่มีมาก่อนหน้านี้แล้ว** ไม่เกี่ยวกับงาน mobile-responsive/รูปสินค้าที่เพิ่งแก้เลย เพิ่งมาสังเกตเห็นตอนเช็ค console errors รอบนี้เท่านั้น — **ยังไม่ได้แก้ไข** (นอกขอบเขตงานที่ผู้ใช้ขอรอบนี้ ตามกติกา B ทำทีละอย่าง) แจ้งผู้ใช้ไว้เป็นตัวเลือก ถ้าต้องการแก้ต่อมี 2 ทางเลือก: (1) สร้างหน้าเนื้อหาจริงทั้ง 4 หน้า (`/help`, `/help/shipping`, `/help/warranty`, `/about`) หรือ (2) ลบ/ซ่อนลิงก์เหล่านี้ออกจาก Footer ชั่วคราวจนกว่าจะมีเนื้อหาจริง — รอผู้ใช้ตัดสินใจ
+**🎉 Deploy ร้านค้าขึ้น Vercel — สำเร็จสมบูรณ์แล้ว 100% (2026-09-18)**: URL จริงคือ **https://desk-lab-omega.vercel.app/** — Auto-deploy ทุกครั้งที่ push ขึ้น `main`
 
 **สิ่งที่ยังไม่ได้ทำ/ค้างไว้เป็นทางเลือกในอนาคต**:
-- ทดสอบ flow เต็มบนเว็บ production (สมัคร/ล็อกอิน/เพิ่มตะกร้า/checkout จริง) — เพิ่งตรวจแค่หน้า static/read-only + หน้า Cart ที่มีสินค้าจริง
+- ตรวจสอบผลลัพธ์ deploy บน production หลัง push commit `b49064e`/`e0d9ea2` (งานความเร็ว+responsive รอบนี้)
+- ทดสอบ flow เต็มบนเว็บ production (สมัคร/ล็อกอิน/เพิ่มตะกร้า/checkout จริง)
 - ผูกโดเมนของตัวเอง (ตอนนี้ใช้ `desk-lab-omega.vercel.app` ฟรีของ Vercel)
 - สลับ Opn Payments เป็นโหมด live (ตอนนี้ยังเป็น sandbox)
 - ระบบอัปโหลดรูปสินค้าจริง (ตอนนี้ใช้ช่องกรอก URL แทน)
 - Sync สถานะ orders กับตาราง payments อัตโนมัติเวลาแอดมินเปลี่ยนสถานะ
 - รองรับ `redirectTo` แบบเต็มรูปแบบหลังล็อกอิน
 - Export ใบเสร็จเป็น PDF (ตอนนี้ใช้ print เบราว์เซอร์ตรงๆ)
-- เช็ค GitHub Actions CI เขียวจริงหลัง commit `465e1ad`
 - ปุ่ม/ไอคอน "ตะกร้า" ที่ค้างอยู่ใน `AdminTopBar.tsx`
-- Micro-animation ที่เหลือ: Checkout, Order-History, Admin Dashboard (พักไว้ 2026-09-18)
-- **🆕 แก้ลิงก์ Footer 404** (`/help`, `/help/shipping`, `/help/warranty`, `/about`) — พบใหม่ 2026-09-18 รอผู้ใช้ตัดสินใจว่าจะสร้างหน้าจริงหรือลบลิงก์ออก
-- **🆕 หน้า Shop `CartAside.tsx` ล้นขอบจอมือถือ** — พบระหว่างแก้ Cart มือถือ (2026-09-18) ยังไม่ได้แก้
+- Micro-animation ที่เหลือ: Checkout, Order-History, Admin Dashboard
+- แก้ลิงก์ Footer 404 (`/help`, `/help/shipping`, `/help/warranty`, `/about`) — รอผู้ใช้ตัดสินใจว่าจะสร้างหน้าจริงหรือลบลิงก์ออก
+- **🆕 Rail.tsx responsive/bottom-nav บนมือถือ** — พบระหว่างงาน responsive รอบนี้ (2026-09-22) ยังไม่ได้แก้ ไม่ใช่บั๊ก แค่ไม่ optimal บนจอเล็ก
+- **🆕 Admin pages responsive** — ยังไม่ได้ตรวจเลย (priority ต่ำสุด)
 
 **ค้างไว้/รอทีหลัง**:
 1. **โปรแกรมจำลองการจัดโต๊ะ (Phase 2)** — ยังไม่เคยลงรายละเอียดเลย
@@ -375,7 +325,7 @@ Rail ซ้าย 76px, Top bar 68px, ตัวเลข IBM Plex Mono, ข้�
 - **✅ Vercel deploy สำเร็จแล้ว (2026-09-18)**: ไม่มี Vercel CLI ติดตั้งบนเครื่อง (ยังไม่จำเป็นต้องมี) — ใช้ Vercel Dashboard (เว็บ) เชื่อม GitHub repo + กรอก env vars สำเร็จทั้งหมด — URL จริง: **https://desk-lab-omega.vercel.app/** — ทุก push ขึ้น `main` จะ auto-deploy ให้เอง
 - **Supabase MCP**: ต่อ Desk-Lab (`wrokdxuxazwzpttghrko`) — เช็ค `list_projects` ทุกครั้งก่อนรัน SQL จริงเผื่อสลับบัญชี
 - **Figma MCP**: บัญชีปัจจุบัน **MisTerToPz.** (poonyapatsudlor@gmail.com) แผน **Starter = 20 tool call/เดือน** (ไม่ใช่ต่อวัน) ใกล้/เกินโควตาได้ง่ายมาก — **ไม่ได้ใช้งานต่อแล้วในตอนนี้เพราะเปลี่ยนมาทำ Admin Dashboard ในโค้ดแทน** (ดูหัวข้อด้านบน) — ถ้าจะกลับมาใช้ Figma อีกในอนาคต ต้องเช็ค quota ก่อนทุกครั้งด้วย `whoami` (ไม่นับ quota) ก่อนเรียก tool อื่น
-- **Built-in browser (Claude Browser)**: ใช้ตรวจสอบหน้าเว็บบน localhost:3000 ได้จริงระหว่างทำงาน รวมถึงล็อกอินทดสอบได้ (ใช้บัญชี `bruno.testa`/`bruno.testb` ตั้ง role ชั่วคราวได้เวลาต้องจำลองสถานการณ์แอดมิน โดยต้องเปลี่ยน role กลับเป็น customer ทุกครั้งหลังทดสอบเสร็จ) — ข้อมูลล็อกอินทดสอบเก็บอยู่ที่ `bruno/environments/Local.bru` บนเครื่องผู้ใช้ (`test_email_a`/`test_password_a` = `bruno.testa@desklab.test` / `BrunoTest123!`) — **ใช้ตรวจสอบเว็บ production จริงบน `desk-lab-omega.vercel.app` ได้ด้วย (ยืนยันแล้ว 2026-09-18)** ต้องขอ site access ก่อนครั้งแรก (`request_access` scope "site")
+- **Built-in browser (Claude Browser)**: ใช้ตรวจสอบหน้าเว็บบน localhost:3000 ได้จริงระหว่างทำงาน รวมถึงล็อกอินทดสอบได้ (ใช้บัญชี `bruno.testa`/`bruno.testb` ตั้ง role ชั่วคราวได้เวลาต้องจำลองสถานการณ์แอดมิน โดยต้องเปลี่ยน role กลับเป็น customer ทุกครั้งหลังทดสอบเสร็จ) — ข้อมูลล็อกอินทดสอบเก็บอยู่ที่ `bruno/environments/Local.bru` บนเครื่องผู้ใช้ (`test_email_a`/`test_password_a` = `bruno.testa@desklab.test` / `BrunoTest123!`) — **ใช้ตรวจสอบเว็บ production จริงบน `desk-lab-omega.vercel.app` ได้ด้วย** ต้องขอ site access ก่อนครั้งแรก (`request_access` scope "site") — **resize_window ใช้ทดสอบ responsive ที่ 375/768/1024px ได้จริง (ใช้แล้วรอบ 2026-09-22) — จำเสมอว่าต้อง reset กลับ preset "desktop" หลังทดสอบเสร็จ**
 - **⚠️ ข้อควรระวังสำคัญ (2026-09-13)**: บนเครื่องนี้ `next dev` (Windows/Turbopack) สร้าง process ลูกแยกออกจาก process หลักที่ terminal เปิดไว้ — การปิด terminal หรือ kill แค่ process หลัก **ไม่พอ** ที่จะปิด dev server จริง (port 3000 ยังถูกครองอยู่โดย process ลูกที่ยังไม่ตาย) ทุกครั้งที่ต้อง restart dev server เพื่อทดสอบอะไรที่พึ่งพา middleware/proxy หรือ env ใหม่ ต้องเช็ค `Get-NetTCPConnection -LocalPort 3000` หา PID จริงแล้ว `taskkill /PID <pid> /F` ก่อนเปิดใหม่เสมอ ไม่งั้นจะทดสอบกับโค้ดเก่าโดยไม่รู้ตัว
 - **⚠️ ข้อควรระวังใหม่ (2026-09-16)**: `motion.xxx` (จาก `motion/react`) ห้ามใช้ตรงๆ ในไฟล์ที่ไม่มี `"use client"` แม้ว่า `motion` component จะถูก import จากแพ็กเกจที่เป็น client module ก็ตาม — เพราะ `motion.xxx` เป็น JavaScript Proxy ที่ execute `createMotionComponent()` ทันทีตอน property access ไม่ใช่ตอน render จึง error ถ้าอ่านจากไฟล์ฝั่งเซิร์ฟเวอร์ล้วน (async Server Component) — ต้องแยก JSX ที่ใช้ `motion.xxx` ไปไว้ในไฟล์ลูกที่มี `"use client"` เสมอ แล้วให้ Server Component import มาใช้แบบส่ง props เท่านั้น (ดูเคสจริงที่หน้า Home ขั้นตอนที่ 5 ด้านล่าง) — **บทเรียนนี้สำคัญกว่า build ผ่านเฉยๆ**: `npm run build` ผ่าน 100% ไม่ได้แปลว่ารันจริงบน dev server จะไม่พัง ต้องเปิดเบราว์เซอร์เช็คหน้าที่แก้จริงทุกครั้งที่ใช้ motion ในไฟล์ใหม่ที่ไม่เคยมี `"use client"` มาก่อน
 - **⚠️ ข้อควรระวังใหม่ (2026-09-17)**: บนเครื่องนี้ `npm run build` (production build) กับ `npm run dev` ใช้โฟลเดอร์ `.next` ร่วมกัน — รัน `npm run build` ขณะ `next dev` เดิมยังรันค้างอยู่ (หรือรันสลับกันโดยไม่ restart) อาจทำให้ dev server เดิมเริ่มตอบ 404 ผิดปกติแม้แต่หน้าแรก (`/`) ทั้งที่โค้ด/route ไม่มีปัญหาอะไรเลย (ยืนยันจาก `npm run build` แยกต่างหากที่คอมไพล์ผ่าน 100% ไม่มี error) — วิธีแก้ที่ใช้ได้จริง: หา PID ที่ครอง port 3000 (`netstat -ano | findstr :3000`) `Stop-Process -Id <pid> -Force` แล้ว `npm run dev` ใหม่ทั้งหมด — ไม่ต้องแก้โค้ดใดๆ เพราะไม่ใช่บั๊กของโค้ด
@@ -416,170 +366,44 @@ Rail ซ้าย 76px, Top bar 68px, ตัวเลข IBM Plex Mono, ข้�
 
 **⚠️ ข้อจำกัดสำคัญด้านความปลอดภัยที่ยึดตลอดกระบวนการ**: Claude ไม่แตะค่า API key/secret key ใดๆ เลย — ผู้ใช้กรอก Environment Variables ทั้ง 5 ตัวเองทั้งหมดในหน้า Vercel Project Settings
 
-**สำรวจสภาพแวดล้อมจริงก่อนเริ่ม (2026-09-18)**:
-- อ่านชื่อตัวแปรจาก `.env.local` (เฉพาะชื่อ ไม่อ่านค่า) ได้ 5 ตัวแปร: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `OPN_SECRET_KEY`, `NEXT_PUBLIC_OPN_PUBLIC_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
-- เช็คแล้ว: เครื่องผู้ใช้ยังไม่มี Vercel CLI ติดตั้ง — ใช้ Vercel Dashboard (เว็บ) เป็นหลักแทน
-- เช็ค `git status` พบว่ามีงานแอนิเมชันขั้นตอนที่ 1-6 ยัง commit ขึ้น GitHub ไม่ครบ — ต้อง commit + push ให้ครบก่อน
+**แผนขั้นตอนที่ทำจริงทั้งหมด (ทำทีละขั้นตอน ตามกติกา B) — ครบทั้ง 7 ขั้นตอนแล้ว**: (รายละเอียดเต็มดูในประวัติเวอร์ชันไฟล์นี้) — URL: **https://desk-lab-omega.vercel.app/**
 
-**แผนขั้นตอนที่ทำจริงทั้งหมด (ทำทีละขั้นตอน ตามกติกา B) — ครบทั้ง 7 ขั้นตอนแล้ว**:
-1. ~~**Commit + push งานแอนิเมชันขั้นตอนที่ 1-6 ที่ค้างอยู่ขึ้น GitHub ให้ครบ**~~ — ✅ เสร็จแล้ว: `git add -A` ครบทั้ง 10 ไฟล์ → commit `9641ccb` → `git push origin main` สำเร็จ (`465e1ad..9641ccb main -> main`)
-2. ~~**ตรวจสอบ `npm run build` รอบสุดท้ายบนเครื่องผู้ใช้ก่อน push**~~ — ✅ เสร็จแล้ว: ผ่าน 100% ไม่มี error (compile สำเร็จ, TypeScript ผ่าน, static pages 22/22, ครบ 24 route)
-3. ~~**ผู้ใช้เชื่อมต่อ GitHub repo กับ Vercel เอง**~~ — ✅ เสร็จแล้ว: ผู้ใช้ import project จาก `69319010022-sudo/Desk-Lab` สำเร็จ — ระหว่างทางเจอหน้า "Optional Integrations" ของ Vercel ที่เสนอปุ่ม "Add Supabase" (Vercel's Supabase Integration) — **แนะนำผู้ใช้ข้ามไป ไม่กด Add** เพราะจะเสี่ยงไปสร้าง/เชื่อม Supabase project ใหม่แทนที่โปรเจกต์เดิม (`wrokdxuxazwzpttghrko`) ที่มีข้อมูลจริงอยู่แล้ว — ให้กรอก env vars เองแทน (ขั้นตอนที่ 4)
-4. ~~**ผู้ใช้กรอก Environment Variables ทั้ง 5 ตัวเองในหน้า Vercel Project Settings**~~ — ✅ เสร็จแล้ว: ผู้ใช้ยืนยัน "กรอกenvครบแล้ว"
-5. ~~**Deploy ครั้งแรก**~~ — ✅ เสร็จแล้ว: ผู้ใช้กด Deploy สำเร็จ ("Congratulations! You just deployed a new project to Poonyapat.") — URL ที่ได้: **https://desk-lab-omega.vercel.app/**
-6. ~~**ตรวจสอบเว็บที่ deploy จริงผ่าน built-in browser**~~ — ✅ เสร็จแล้ว: ขอ site access ก่อน (`request_access` scope "site") แล้วเปิดตรวจสอบ 4 หน้า ไม่มี console error/Runtime Error เลยสักหน้า:
-   - **Home** (`/`): สินค้าจริงขึ้นครบ (โคมไฟ LED Artisan ฿1,090, แผ่นรองเมาส์ ARTISAN ฿2,500, โต๊ะปรับยืน-นั่ง ModernEgo ฿7,900, ลำโพง Creative Stage ฿2,660 ฯลฯ), การ์ดสถิติ "10 รายการในร้าน / 3 ช่องทางชำระเงิน / 1-3 วันจัดส่ง" ถูกต้อง
-   - **Shop** (`/shop`): สินค้าครบ 10 รายการ, หมวดหมู่ filter ทำงาน, แอนิเมชัน fade-in/stagger (จากงาน micro-animation ขั้นตอนที่ 2) เล่นถูกต้อง (ตอนแรกเห็นภาพจางๆ ระหว่างแอนิเมชันเล่น รอ 2 วินาทีแล้วขึ้นครบปกติ)
-   - **Login** (`/login`): ฟอร์มอีเมล/รหัสผ่าน/ลืมรหัสผ่าน/ลิงก์สมัครสมาชิกแสดงผลถูกต้องครบ
-   - **Cart** (`/cart`): แสดง empty state ถูกต้อง ("ตะกร้าว่าง" + ปุ่มกลับไปเลือกซื้อสินค้า) สำหรับผู้เข้าชมที่ยังไม่ล็อกอิน (ตรงตามพฤติกรรมที่ตั้งใจไว้ — ตะกร้าผูกกับบัญชีที่ล็อกอินเท่านั้น)
-   - เชื่อม Supabase project เดิม (`wrokdxuxazwzpttghrko`) ได้จริง ข้อมูลตรงกับฐานข้อมูลจริงทุกจุด
-7. ~~**อัปเดตแผนนี้ด้วยผลลัพธ์สุดท้ายแล้วรายงานผู้ใช้**~~ — ✅ เสร็จแล้ว (ส่วนนี้เอง)
-
-**สิ่งที่ยังไม่ได้ทดสอบบน production (แนะนำให้ผู้ใช้ลองเองแล้วแจ้งถ้าเจอปัญหา)**: สมัครสมาชิก/ล็อกอินจริง, เพิ่มสินค้าลงตะกร้าจริง (ต้องล็อกอินก่อน), ขั้นตอน checkout จริง (พร้อมเพย์/บัตร/COD แบบ sandbox), หน้า Admin Dashboard บน production, Order-History
-
-**ขอบเขตที่ตั้งใจไม่ทำรอบนี้**: ผูกโดเมนของตัวเอง, สลับ Opn Payments เป็นโหมด live, เปิด Supabase Auth email confirmation กลับมา, ตั้งค่า custom analytics/observability — เก็บไว้เป็นขั้นตอนถัดไปในอนาคตถ้าผู้ใช้ต้องการ
+**สิ่งที่ยังไม่ได้ทดสอบบน production**: สมัครสมาชิก/ล็อกอินจริง, เพิ่มสินค้าลงตะกร้าจริง, ขั้นตอน checkout จริง, หน้า Admin Dashboard บน production, Order-History
 
 ---
 
 ## ✅ แก้รูปสินค้าในหน้า Product-Detail ที่ใหญ่เกินไป — ปิดงานสมบูรณ์ (2026-09-18)
 
-ดูรายละเอียดเต็มในหัวข้อ "🔜 ขั้นต่อไปที่แนะนำ" ด้านบน (ย้ายสรุปไปรวมไว้ที่นั่นแล้วเพื่อไม่ให้ซ้ำซ้อน) — commit/push/deploy/ตรวจสอบ production ครบแล้วทั้งหมด รวมอยู่ใน commit เดียวกับงานแก้ Cart มือถือ (`8ab5bcd`)
+แก้ `src/components/ProductGallery.tsx` เพิ่ม `mx-auto flex w-full max-w-[480px] flex-col gap-3` — commit/push/deploy/ตรวจสอบ production ครบแล้วทั้งหมด รวมอยู่ใน commit `8ab5bcd`
 
 ---
 
-## 🆕 ใส่โลโก้จริงของร้าน (Logo Branding) — แผนงาน (2026-09-18)
+## 🆕 แก้หน้าจอโทรศัพท์ที่เละเทะ (หน้า Cart) — เสร็จสมบูรณ์แล้ว commit/push/deploy ครบ + ตรวจสอบ production แล้ว (2026-09-18)
 
-**คำขอผู้ใช้**: ส่งภาพ 2 อันเป็น browser tab title/favicon ปัจจุบัน (ไอคอนแท็บยังเป็นไอคอนเริ่มต้นทั่วไป ไม่ใช่โลโก้จริงของร้าน) แล้วพิมพ์ "เข้าไปดูไฟล์ img/logo หน่อย ช่วยเอาโลโก้มาแต่งให้ผมหน่อย Tab site และในร้านค้า มีแบบ Remove bg และไม่ Remove bg ให้นายจัดสรรตามความเหมาะเลย" — คือให้เอาไฟล์โลโก้ในโฟลเดอร์ `img/Logo/` มาใส่ในเว็บ ทั้งไอคอนแท็บเบราว์เซอร์และจุดอื่นๆ ในร้านค้า โดยให้ Claude เป็นคนตัดสินใจเองว่าไฟล์ไหน (มี bg / ไม่มี bg) ควรใช้ตรงไหน
+แก้ `TopBar.tsx` (ทุกหน้า), `cart/page.tsx`, `CartAnimatedSections.tsx` (`OrderSummaryPanel` + `CartItemList`) ให้ responsive ที่ breakpoint `lg:` — commit `8ab5bcd` — ตรวจสอบบน production แล้วครบทุกจุด
 
-**ไฟล์ที่พบในโฟลเดอร์ `img/Logo/`** (เช็คแล้วจากเครื่องผู้ใช้จริง):
-1. `Desk-Lab Logo.png` — โลโก้พื้นหลังโปร่งใส (remove bg) สีเข้ม (กรมท่า/เกือบดำ) มีทั้งไอคอนตัว D + ข้อความ "DESK-LAB" + tagline "YOUR DESK YOUR STYLE"
-2. `Desk-Logo 1.png` — โลโก้แบบเต็ม ไม่ remove bg มีพื้นหลังสีครีมอ่อนล้อมรอบ เนื้อหาเดียวกับไฟล์แรก (ไอคอน D + DESK-LAB + tagline)
-
-**จุดที่จะนำโลโก้ไปใส่ในโค้ด (สำรวจแล้วจากไฟล์จริง)**:
-1. **Favicon/browser tab icon** (`src/app/favicon.ico`) — ตอนนี้เป็นไอคอนเริ่มต้นของ Next.js ไม่ใช่โลโก้จริง — ใช้ไฟล์ **remove bg** (ตัวโปร่งใส) ครอปเฉพาะไอคอนตัว D (ไม่เอาข้อความ เพราะพื้นที่แท็บเบราว์เซอร์เล็กมาก ตัวหนังสือจะอ่านไม่ออก) แปลงเป็น .ico หลายขนาด (16/32/48px)
-2. **กล่องโลโก้ "DL" ใน `src/components/Rail.tsx`** (แถบเมนูซ้ายฝั่งลูกค้า, กล่องขาวมุมโค้ง 40x40 บนพื้นหลัง `bg-ink` เข้ม ตอนนี้เป็นตัวหนังสือ "DL" ธรรมดา) — ใช้ไฟล์ **remove bg** ครอปเฉพาะไอคอนตัว D วางแทนตัวหนังสือ "DL" ในกล่องขาวเดิม (กล่องขาวเดิมช่วยให้โลโก้สีเข้มเห็นชัดอยู่แล้ว ไม่ต้องเปลี่ยนสีอะไร)
-3. **กล่องโลโก้ "DL" ใน `src/components/admin/AdminRail.tsx`** (แถบเมนูซ้ายฝั่งแอดมิน โครงสร้างเหมือน Rail.tsx เป๊ะ) — ทำแบบเดียวกับข้อ 2
-4. **หัวข้อหน้า Login/Register** (`src/app/(auth)/layout.tsx` — ตอนนี้เป็นกล่องสี่เหลี่ยมสีพื้น (`bg-primary`) เปล่าๆ + ข้อความ "DeskLab" ข้างๆ ซึ่งเป็น placeholder เก่าที่ยังไม่เคยใส่โลโก้จริง) — ใช้ไฟล์ **remove bg** เวอร์ชันเต็ม (ไอคอน D + ข้อความ DESK-LAB ในภาพเดียว) แทนที่กล่องสี่เหลี่ยม + ข้อความเดิมทั้งหมด
-5. **Open Graph / social preview image** (`src/app/layout.tsx` metadata — ตอนนี้ยังไม่มี `openGraph.images` เลย) — ใช้ไฟล์ **ไม่ remove bg** (พื้นหลังครีมเต็มภาพ) เป็น `og:image` เพราะภาพนี้ดูสมบูรณ์ในตัวเองอยู่แล้ว เหมาะกับการโชว์เป็นภาพตัวอย่างตอนแชร์ลิงก์เว็บในแชท/โซเชียล (ไม่ต้องพึ่งพื้นหลังของหน้าเว็บ)
-
-**ขอบเขตที่ตั้งใจไม่แตะรอบนี้**: `src/components/Footer.tsx` (คอลัมน์ "DeskLab" เป็นแค่ข้อความหัวข้อ ไม่ใช่โลโก้ อยู่บนพื้นหลังเข้ม `bg-footer` ซึ่งโลโก้สีเข้มที่มีจะกลืนไปกับพื้นหลัง มองไม่เห็น — ถ้าจะใส่ต้องทำเวอร์ชันสีขาว/invert สีเพิ่มซึ่งเป็นงานแยก ไม่ได้อยู่ในคำขอรอบนี้) — เก็บไว้เป็นตัวเลือกถ้าผู้ใช้อยากทำต่อ
-
-**แนวทางเทคนิค**: ครอป/เตรียมไฟล์ภาพ (ตัดขอบโปร่งใสส่วนเกิน, resize) ต้องใช้ Python/PIL ซึ่งเครื่องผู้ใช้ไม่มี Python ติดตั้ง (มีแค่ Node.js) — จึงดึงไฟล์ต้นฉบับ 2 ไฟล์เข้ามาประมวลผลใน sandbox ของ Claude ที่มี Python พร้อมใช้ แล้วส่งไฟล์ผลลัพธ์ (favicon .ico, โลโก้ไอคอนโปร่งใสสำหรับกล่อง Rail, โลโก้เต็มโปร่งใสสำหรับหน้า Login/Register, ภาพ og-image พื้นครีม) กลับไปเขียนไว้ที่ `public/` บนเครื่องผู้ใช้ตามปกติ — แล้วแก้โค้ด 4 ไฟล์ (`Rail.tsx`, `AdminRail.tsx`, `(auth)/layout.tsx`, `layout.tsx` metadata) และแทนที่ `favicon.ico`
-
-**แผนทดสอบ**: รัน dev server บนเครื่องผู้ใช้ เปิดดูทุกจุดที่แก้ (แท็บเบราว์เซอร์, Rail ฝั่งลูกค้า, AdminRail ฝั่งแอดมิน, หน้า Login/Register) ทั้งจอกว้าง/แคบ เช็คว่าโลโก้คมชัดไม่เบลอ/ไม่ล้นกล่อง ก่อนรายงานผู้ใช้แล้วรอ confirm ก่อน commit/push ตามกติกา B
-
-**✅ ประมวลผลไฟล์ภาพเสร็จแล้ว (2026-09-18)**: ใช้ Python/PIL ใน sandbox ของ Claude (เครื่องผู้ใช้ไม่มี Python) วิเคราะห์ alpha channel ของ `Desk-Lab Logo.png` แล้วแยกเป็น 3 แถบเนื้อหาตามแนวตั้ง (ไอคอน D, ข้อความ DESK-LAB, tagline) จากนั้นครอปแยกเป็นไฟล์:
-- `logo-icon.png` (512x512, พื้นหลังโปร่งใส, ครอปเฉพาะไอคอนตัว D จัดกึ่งกลางบน canvas สี่เหลี่ยมจัตุรัส) — ใช้ในกล่องโลโก้ Rail/AdminRail
-- `favicon.ico` (multi-size 16/32/48px, สร้างจาก logo-icon.png) — แทนที่ `src/app/favicon.ico` เดิม
-- `icon.png` (512x512) และ `apple-icon.png` (180x180) — เพิ่มตาม Next.js App Router convention (auto-detect ใน `src/app/`) เสริมความเข้ากันได้กับเบราว์เซอร์/iOS นอกเหนือจาก favicon.ico
-- `logo-lockup.png` (พื้นหลังโปร่งใส, ครอปไอคอน D + ข้อความ "DESK-LAB" ไม่รวม tagline) — ใช้ในหัวข้อหน้า Login/Register
-- `og-image.png` (896x553, ครอปจาก `Desk-Logo 1.png` ตัดขอบพื้นหลังครีมส่วนเกินออก เหลือ padding พอดี) — ใช้เป็น Open Graph social preview image
-
-**✅ แก้โค้ดแล้วและทดสอบผ่านแล้ว (2026-09-18)**:
-- `src/components/Rail.tsx`: เปลี่ยนตัวหนังสือ "DL" ในกล่องขาวมุมโค้งเป็น `<img src="/logo-icon.png">` (`object-contain`, กล่องเดิมมี padding เพิ่มเล็กน้อยด้วย `p-[7px]` ให้โลโก้ไม่ชิดขอบเกินไป)
-- `src/components/admin/AdminRail.tsx`: แก้แบบเดียวกันเป๊ะ (โครงสร้างเหมือน Rail.tsx)
-- `src/app/(auth)/layout.tsx`: แทนที่กล่องสี่เหลี่ยม `bg-primary` เปล่าๆ + ข้อความ "DeskLab" (ของเก่าที่ไม่เคยใส่โลโก้จริง) ด้วย `<img src="/logo-lockup.png">` สูง 36px (`h-9 w-auto`) ตัวเดียว
-- `src/app/layout.tsx`: เพิ่ม `openGraph.images` ชี้ไป `/og-image.png` (896x553) พร้อม title/description เดียวกับ metadata หลัก
-- ใช้ `<img>` ธรรมดาไม่ใช่ `next/image` ให้ตรงกับ convention เดิมของโปรเจกต์ (เช็คแล้วว่า `ProductGallery.tsx` ก็ใช้ `motion.img`/`<img>` ธรรมดาอยู่แล้วทั้งไฟล์ ไม่มี eslint error เรื่องนี้)
-
-**ทดสอบบน dev server แล้ว**: รัน `npm run dev` ใหม่ (ไม่มี process เดิมค้าง) เปิดผ่าน built-in browser ยืนยันว่า:
-- หน้าแรก (`/`): กล่องโลโก้ Rail แสดงไอคอน D คมชัด ไม่เบลอ/ไม่ล้นกล่อง ทั้งจอกว้าง (1440px) และมือถือ (375px)
-- หน้า Login (`/login`, หลัง logout บัญชีทดสอบที่ค้าง session อยู่): หัวข้อบนสุดแสดงโลโก้เต็ม "DESK-LAB" แทนกล่องสี่เหลี่ยมเปล่าเดิมแล้ว
-- เช็ค console errors: ไม่มี error เกี่ยวกับรูปภาพ/โลโก้เลย (มีแค่ WebSocket HMR error ปกติของ Turbopack ที่ไม่เกี่ยวข้อง)
-- **ยังไม่ได้ล็อกอินด้วยบัญชีแอดมินเพื่อเช็ค AdminRail แบบเห็นจริง** (ไม่อยากยุ่งกับบัญชีแอดมินจริงหรือสลับ role ของบัญชีทดสอบโดยไม่จำเป็น) — แต่โค้ด AdminRail.tsx แก้แบบเดียวกันเป๊ะกับ Rail.tsx ที่ยืนยันแล้วว่าใช้งานได้ จึงมั่นใจว่าเหมือนกัน
-
-**ขอบเขตที่ตั้งใจไม่แตะ**: `Footer.tsx` (ยังเป็นข้อความ "DeskLab" ธรรมดา ไม่ใส่โลโก้ เพราะพื้นหลัง footer เป็นสีเข้ม โลโก้สีเข้มที่มีจะกลืนมองไม่เห็น ต้องทำเวอร์ชันสีขาวเพิ่มถ้าจะใส่ — เก็บเป็นตัวเลือกในอนาคต)
-
-**✅ Commit + Push ขึ้น GitHub แล้วสำเร็จ (2026-09-20)**: ผู้ใช้ยืนยัน "commit/push ขึ้น GitHub ให้ผมเลย" — ก่อน commit รัน `npm run build` ยืนยันผ่าน 100% อีกครั้งบนเครื่องผู้ใช้จริง (compile สำเร็จ, TypeScript ผ่าน, static pages ครบ 24/24 route รวมทั้ง `/icon.png` และ `/apple-icon.png` ที่เพิ่งเพิ่มใหม่ขึ้นเป็น static route ถูกต้อง) → `git add` เฉพาะ 10 ไฟล์ที่ตั้งใจ (5 แก้ไข: `src/app/(auth)/layout.tsx`, `src/app/favicon.ico`, `src/app/layout.tsx`, `src/components/Rail.tsx`, `src/components/admin/AdminRail.tsx` — 5 ไฟล์ใหม่: `public/logo-icon.png`, `public/logo-lockup.png`, `public/og-image.png`, `src/app/apple-icon.png`, `src/app/icon.png`) — **ไม่แตะโฟลเดอร์ `img/Logo/` ที่ untracked** (เก็บไว้เป็นไฟล์อ้างอิงต้นฉบับบนเครื่องเท่านั้น ตามธรรมเนียมเดิมของโปรเจกต์) → commit `17c17b6` ("feat: add real DeskLab logo to favicon, sidebar, admin sidebar, login header, and OG image") → `git push origin main` สำเร็จ (`8ab5bcd..17c17b6 main -> main`) — Vercel จะ auto-deploy ให้อัตโนมัติจาก `main` ตามปกติ (ยังไม่ได้เข้าไปตรวจสอบผลลัพธ์บน production จริงหลัง deploy รอบนี้ — เป็นขั้นต่อไปที่แนะนำถ้าผู้ใช้ต้องการให้ตรวจสอบต่อ)
-
-**สถานะ**: ✅ **ปิดงานสมบูรณ์ 100%** — แก้โค้ด + ทดสอบ dev + build ผ่าน + commit/push ขึ้น GitHub ครบแล้วทุกขั้นตอน
+**พบเพิ่มเติมตอนนั้น (แก้แล้วรอบ 2026-09-21/22)**: หน้า Shop `CartAside.tsx` ล้นขอบจอมือถือ — ดูหัวข้อ "แผน 2 เรื่อง" ด้านบน
 
 ---
 
-## 🆕 แก้ป้ายไอคอนหมวดหมู่หน้าแรก (Popular Categories) — แผนงาน (2026-09-20)
+## 🆕 พบปัญหาใหม่ที่ไม่เกี่ยวข้อง (2026-09-18): ลิงก์ Footer ชี้ไปหน้าที่ยังไม่มีอยู่จริง (404)
 
-**คำขอผู้ใช้**: ส่ง screenshot ส่วน "หมวดหมู่ยอดนิยม" หน้าแรก เห็นวงกลมสีในป้ายหมวดหมู่โชว์ตัวอักษรแปลกๆ ("n", "n", "โ", "แ", "n") ถามว่า "ตรงนี้ควรแก้เป็นอะไรดีปุ่มหมวดหมู่"
-
-**สาเหตุที่วินิจฉัยจากโค้ดจริง**: `CategoryRow` ใน `src/app/(site)/HomeAnimatedSections.tsx` (บรรทัด ~78-101) ใช้ `{cat.name.charAt(0)}` แสดงแค่ตัวอักษรแรกของชื่อหมวดหมู่แทนไอคอนจริง — ปัญหา 2 ชั้น: (1) ตัวอักษรไทยบางตัว (เช่น "ท") เรนเดอร์เล็กจิ๋วที่ 36px แล้วดูคล้ายตัวอังกฤษ "n" (2) หมวดที่ขึ้นต้นด้วย "ที่..." เหมือนกันหลายหมวด (ที่ชาร์จและปลั๊กไฟ, ที่จัดระเบียบโต๊ะ, ที่วางจอ) โชว์ตัวอักษรซ้ำกันหมด แยกไม่ออก
-
-**หมวดหมู่จริงทั้ง 8 หมวด** (เช็คจาก Supabase ตาราง `categories` จริง): โคมไฟ (`lamp`), แผ่นรองเมาส์ (`mousepad`), ที่วางจอ (`monitor-stand`), ลำโพง (`speaker`), ที่วางหูฟัง (`headphone-stand`), คีย์บอร์ด (`keyboard`), ที่ชาร์จและปลั๊กไฟ (`charging-power`), ที่จัดระเบียบโต๊ะ (`desk-organizer`)
-
-**ทางเลือกที่เสนอผู้ใช้ผ่าน AskUserQuestion**: (1) วาดไอคอน SVG เอง ให้ตรงกับสไตล์ line-icon ที่ใช้อยู่แล้วใน `AdminRail.tsx`/กราฟ Analytics (ไม่มี icon library ติดตั้งในโปรเจกต์เลย) (2) ใช้ Emoji แทน (3) ใช้ตัวย่ออักษรอังกฤษ (เช่น CH/OR) แทนตัวอักษรไทยตัวแรก — **ผู้ใช้เลือกข้อ 1 (วาดไอคอน SVG เอง)**
-
-**แผนทำจริง**:
-1. เพิ่มฟังก์ชัน icon component ต่อหมวด (8 อัน + fallback) ใน `HomeAnimatedSections.tsx` (ไฟล์นี้มี `"use client"` อยู่แล้ว) แมปจาก `cat.slug` → ไอคอน — สไตล์ตรงกับ `AdminRail.tsx` (`viewBox 0 0 18 18`, `stroke="currentColor"`, `strokeWidth 1.5-1.6`, เส้นโค้งมน): โคมไฟ = โคมไฟตั้งโต๊ะ, แผ่นรองเมาส์ = สี่เหลี่ยมมนพร้อมเมาส์, ที่วางจอ = ขาตั้งจอ, ลำโพง = ลำโพง, ที่วางหูฟัง = โครงหูฟัง, คีย์บอร์ด = ปุ่มคีย์บอร์ดเป็นแถว, ที่ชาร์จและปลั๊กไฟ = ปลั๊ก/สายชาร์จ, ที่จัดระเบียบโต๊ะ = ถาด/ช่องจัดระเบียบ
-2. แก้ `CategoryRow` เปลี่ยนจาก `{cat.name.charAt(0)}` เป็น `<CategoryIcon slug={cat.slug} />` — คงวงกลมพื้นหลังสีพาสเทลเดิม (`categoryBlockColors`) ไว้เหมือนเดิม เปลี่ยนแค่เนื้อหาข้างในจากตัวอักษรเป็นไอคอน สี icon ใช้ `text-ink` ให้ตัดกับพื้นหลังพาสเทลชัดเจน
-3. ไม่แตะ layout/grid/สี/ระยะห่างอื่นของส่วนนี้เลย แก้เฉพาะไอคอนข้างในวงกลม
-
-**แผนทดสอบ**: รัน dev server เปิดหน้าแรกเช็คว่าไอคอนครบทั้ง 8 หมวด คมชัดไม่เบลอ ไม่ล้นวงกลม ทั้งจอกว้าง/มือถือ ก่อนรายงานผู้ใช้แล้วรอ confirm ก่อน commit/push ตามกติกา B
-
-**✅ แก้โค้ดแล้วและทดสอบผ่านแล้ว (2026-09-20)**: แก้ `src/app/(site)/HomeAnimatedSections.tsx` — เพิ่ม `CategoryIcon` + ไอคอน SVG 8 อัน (`LampCategoryIcon`, `MousepadCategoryIcon`, `MonitorStandCategoryIcon`, `SpeakerCategoryIcon`, `HeadphoneCategoryIcon`, `KeyboardCategoryIcon`, `ChargingCategoryIcon`, `OrganizerCategoryIcon`) + `DefaultCategoryIcon` สำรอง แล้วเปลี่ยน `CategoryRow` จาก `{cat.name.charAt(0)}` เป็น `<CategoryIcon slug={cat.slug} />` — ยืนยันว่าไม่มีจุดอื่นในโค้ดใช้แพทเทิร์น `.charAt(0)` แบบนี้อีก (เช็คด้วย search ทั้งโปรเจกต์ พบจุดเดียว)
-
-ระหว่างทดสอบพบว่าไอคอน "แผ่นรองเมาส์" รอบแรก (สี่เหลี่ยมมนสัดส่วน 4x5.5) เรนเดอร์ออกมาดูเหมือนวงกลม/เลนส์กล้องมากกว่าเมาส์ — แก้โดยปรับสัดส่วนให้เรียวยาวขึ้น (3x7) ตัดเส้นแบ่งกลางออก ทดสอบซ้ำแล้วดูเป็นเมาส์ในแผ่นรองชัดเจนขึ้น
-
-ทดสอบผ่าน built-in browser บนหน้าแรกจริง (dev server): เห็นไอคอนครบทั้ง 5 หมวดที่แสดงบนหน้าแรก (หน้าแรกโชว์ top 5 หมวดหมู่ตามจำนวนสินค้า ไม่ใช่ทั้ง 8 หมวด — ตาม `page.tsx` เดิมที่ `.slice(0, 5)` อยู่แล้ว): ปลั๊กไฟ, ถาดจัดระเบียบ, โคมไฟ, แผ่นรองเมาส์+เมาส์, จอ — คมชัดไม่เบลอ ไม่ล้นวงกลม ทั้งขนาดจริง 36px และขยายดูที่ 48px, ทดสอบซ้ำที่ viewport มือถือ 375px เรียงเป็น grid 2 คอลัมน์ถูกต้อง เช็ค console ไม่มี error ใหม่เลย — `npm run type-check` ผ่าน 0 error, `npm run lint` ผ่าน 0 error (มีแค่ warning เดิมเรื่อง `<img>` จากงานโลโก้ก่อนหน้าที่ไม่เกี่ยวข้อง), `npm run build` ผ่าน 100% ครบ 24 route
-
-**✅ Commit + Push ขึ้น GitHub แล้วสำเร็จ (2026-09-20)**: ผู้ใช้ยืนยัน "comit/pushเลย" — เช็ค `git status` ก่อนพบว่ามีแค่ไฟล์เดียวที่แก้ตรงกับที่ตั้งใจ (`src/app/(site)/HomeAnimatedSections.tsx`) → `git add` เฉพาะไฟล์นี้ → commit `fb992a1` ("fix: replace category badge letters with real SVG icons on home page") → `git push origin main` สำเร็จ (`fe77efc..fb992a1 main -> main` — หมายเหตุ: HEAD ของ remote ก่อนพุชคือ `fe77efc` ไม่ใช่ `17c17b6` ที่บันทึกไว้รอบโลโก้ก่อนหน้า แปลว่ามี commit อื่นถูกพุชขึ้น `main` เพิ่มระหว่างนั้น จากเซสชัน/ช่องทางอื่น — ไม่กระทบงานนี้ เพราะ `git status` ยืนยันแล้วว่า working tree สะอาดมีแค่ไฟล์ที่ตั้งใจแก้เพียงไฟล์เดียวก่อน commit) — Vercel จะ auto-deploy จาก `main` ให้อัตโนมัติ
-
-**สถานะ**: ✅ **ปิดงานสมบูรณ์ 100%** — แก้โค้ด + ทดสอบ dev + build ผ่าน + commit/push ขึ้น GitHub ครบแล้วทุกขั้นตอน
-
+Footer คอลัมน์ "ช่วยเหลือ" มีลิงก์ 4 อัน (`/help`, `/help/shipping`, `/help/warranty`, `/about`) ที่ยังไม่มีหน้าจริงรองรับ — **ยังไม่ได้แก้ไข** รอผู้ใช้ตัดสินใจ: (1) สร้างหน้าเนื้อหาจริงทั้ง 4 หน้า หรือ (2) ลบ/ซ่อนลิงก์ออกจาก Footer ชั่วคราว
 
 ---
 
-## 🆕 แผน 2 เรื่อง: (1) เพิ่มความเร็วโหลดหน้า (2) แก้ Responsive มือถือ/ไอแพดให้ครบทุกหน้า — แผนงาน (2026-09-21)
+## ✅ ใส่โลโก้จริงของร้าน (Logo Branding) — ปิดงานสมบูรณ์ 100% (2026-09-18/20)
 
-**คำขอผู้ใช้**: ส่ง screenshot หน้าแรกจริงบน production พร้อมบอกว่า "กดไปหน้าอื่นๆแล้วมันโหลดช้าแบบหน่วงๆไม่มีความสมูทเท่าไร" (ไม่มีอาการเจาะจงอื่น แค่รู้สึกว่าโหลดช้า) — จากนั้นขอเพิ่มแผนแก้ไข 2 เรื่องลงไฟล์นี้: **(1) เรื่องโหลดหน้าช้า** และ **(2) เรื่อง Responsive หน้าจอมือถือ/ไอแพด ไม่ให้ UI เพี้ยน**
-
-**หมายเหตุสภาพแวดล้อม**: ตอนคุยเรื่องนี้ เครื่องผู้ใช้ยังต่อผ่าน bridge ไม่ติด (ยังไม่ได้ไล่โค้ดจริง) — แผนนี้เขียนจากบริบทที่มีอยู่แล้วในเอกสารนี้ + หลักการทั่วไปของ Next.js/Supabase ไว้ก่อน พอต่อเครื่องได้จะเริ่มจากขั้นตอนวินิจฉัยจริงก่อนเสมอ ไม่เดาแล้วแก้ทันที
+Favicon, กล่องโลโก้ Rail/AdminRail, หัวข้อ Login/Register, Open Graph image — ครบทุกจุด commit `17c17b6` push ขึ้น GitHub แล้ว
 
 ---
 
-### ส่วนที่ 1: เพิ่มความเร็วโหลดหน้า (ทำทีละขั้นตอนตามกติกา B)
+## ✅ แก้ป้ายไอคอนหมวดหมู่หน้าแรก (Popular Categories) — ปิดงานสมบูรณ์ 100% (2026-09-20)
 
-**ขั้นตอนที่ 1 — วินิจฉัยจริงก่อนแก้ (ต้องทำก่อนเสมอ)**:
-- เช็คว่าแต่ละ route (`/`, `/shop`, `/product/[slug]`, `/cart`, `/checkout`, `/account`, `/orders`, `/admin/*`) มีไฟล์ `loading.tsx` หรือ Suspense boundary หรือยัง (ตามที่รู้อยู่ตอนนี้ ยังไม่เคยสร้างไฟล์นี้เลยสักหน้า)
-- ไล่อ่านทุกฟังก์ชันใน `src/lib/data/*.ts` (catalog.ts, admin-dashboard.ts, admin-orders.ts, admin-analytics.ts, admin-catalog.ts) ว่ามีจุดไหน `await` เรียงต่อกันทีละคำสั่งแทนที่จะยิงพร้อมกันด้วย `Promise.all` บ้าง
-- เช็คว่า query Supabase จุดไหนใช้ `select('*')` ทั้งที่หน้าเว็บใช้ไม่กี่คอลัมน์
-- เช็คว่ารูปภาพทุกจุด (โดยเฉพาะ `ProductGallery.tsx`, การ์ดสินค้าใน Shop/Home) ใช้ `<img>` ธรรมดาหรือ `next/image` — ที่รู้อยู่แล้วตอนนี้คือใช้ `<img>`/`motion.img` ธรรมดา ยังไม่ได้ผ่าน Next.js image optimization เลย
-- เปิดเว็บ production จริง (`desk-lab-omega.vercel.app`) เทียบกับ dev server ว่าอาการหน่วงเกิดทั้งคู่หรือเฉพาะ dev (เพราะ dev mode ช้ากว่าปกติเป็นธรรมชาติอยู่แล้ว)
-- ดู Network tab จริงตอนกดเปลี่ยนหน้าว่า request ไหนใช้เวลานานที่สุด (data fetch จาก Supabase หรือ asset/รูปภาพ)
-
-**ขั้นตอนที่ 2 — ใส่ `loading.tsx` ให้หน้าหลักที่ดึงข้อมูลจาก Supabase**: `/shop`, `/product/[slug]`, `/cart`, `/checkout`, `/orders`, `/admin/dashboard`, `/admin/products`, `/admin/orders`, `/admin/analytics` — ใช้ skeleton เรียบง่ายโทนสีเดียวกับเว็บ ไม่ต้องซับซ้อน จุดนี้มีผลต่อ "ความรู้สึกลื่น" มากที่สุดโดยความเสี่ยงต่อโค้ดเดิมต่ำที่สุด
-
-**ขั้นตอนที่ 3 — รวม query ที่ยิงเรียงต่อกันให้เป็น `Promise.all`**: เฉพาะจุดที่ query ไม่ได้ต้องพึ่งผลลัพธ์ของกันและกัน (เช่นดึง products + categories + reviews พร้อมกันได้ในหน้า product-detail)
-
-**ขั้นตอนที่ 4 — ตัด column ที่ไม่ใช้ออกจาก query ที่ใช้ `select('*')`**
-
-**ขั้นตอนที่ 5 — พิจารณาเปลี่ยนรูปสินค้าจาก `<img>` เป็น `next/image`**: ยกเว้นจุดที่จำเป็นต้องใช้ `motion.img` เพื่อแอนิเมชัน (ต้องเช็คว่า `next/image` ใช้ร่วมกับ `motion` ได้จริงก่อนแก้ ไม่ให้กระทบงานแอนิเมชันที่ทำไว้แล้ว)
-
-**ขั้นตอนที่ 6 — ทดสอบเทียบก่อน/หลัง**: เปิด Network tab/Lighthouse เทียบเวลาโหลดหน้าก่อน-หลังแก้ทั้งบน dev และ production จริง
+แทนที่ `{cat.name.charAt(0)}` ด้วยไอคอน SVG จริง 8 อัน ใน `HomeAnimatedSections.tsx` — commit `fb992a1` push ขึ้น GitHub แล้ว
 
 ---
 
-### ส่วนที่ 2: แก้ Responsive มือถือ/ไอแพด ไม่ให้ UI เพี้ยน (ทำทีละหน้าตามกติกา B)
+## ✅ แผน 2 เรื่อง: (1) เพิ่มความเร็วโหลดหน้า (2) แก้ Responsive มือถือ/ไอแพดให้ครบทุกหน้า — ปิดงานสมบูรณ์ 100% (2026-09-21/22)
 
-**สถานะที่ทำไปแล้วก่อนหน้านี้** (ดูหัวข้อ "แก้หน้าจอโทรศัพท์ที่เละเทะ" ด้านบน — 2026-09-18): แก้แล้วเฉพาะ `TopBar.tsx` (ทุกหน้า), `cart/page.tsx`, `CartAnimatedSections.tsx`, `CartItemList` — ทดสอบตอนนั้นแค่ 2 ขนาดจอ (มือถือ 375px, จอกว้าง 800px) **ยังไม่เคยทดสอบที่ขนาดจอไอแพดจริง (768px แนวตั้ง / 1024px แนวนอน) เลยสักครั้ง**
-
-**หน้า/จุดที่รู้อยู่แล้วว่ายังไม่ได้แก้หรือยังไม่เคยตรวจ**:
-1. **`src/app/(site)/shop/CartAside.tsx`** — วิดเจ็ต "ตะกร้าปัจจุบัน" ลอยขวาล่าง พบว่าล้นขอบจอมือถือแล้ว (บันทึกไว้ตั้งแต่ 2026-09-18 ยังไม่ได้แก้)
-2. หน้า **Checkout** (`/checkout`) — ยังไม่เคยตรวจสอบ responsive เลย
-3. หน้า **Account/Profile** (`/account/profile`) — ยังไม่เคยตรวจสอบ
-4. หน้า **Login/Register** (`(auth)` layout) — ยังไม่เคยตรวจสอบที่ขนาดจอเล็ก/แท็บเล็ต (เพิ่งแก้แค่ใส่โลโก้ ไม่ได้เช็ค responsive)
-5. หน้า **Order-History** (`/orders`) — ยังไม่เคยตรวจสอบ
-6. หน้า **Shop** ส่วนกริดสินค้า + filter หมวดหมู่ (นอกเหนือจาก CartAside) — ยังไม่เคยตรวจสอบ
-7. **Footer** — ยังไม่เคยตรวจสอบ responsive โดยเฉพาะ
-8. **Admin pages** (`/admin/dashboard`, `/admin/products`, `/admin/orders`, `/admin/analytics`) — ออกแบบมาสำหรับจอกว้างเป็นหลัก แต่ถ้าแอดมินเปิดจากไอแพดควรตรวจสอบเบื้องต้นด้วย (priority ต่ำกว่าหน้าลูกค้า)
-
-**แผนขั้นตอน (ทำทีละหน้า ทดสอบ 3 ขนาดจอทุกครั้ง: มือถือ 375px / ไอแพดแนวตั้ง 768px / ไอแพดแนวนอน 1024px)**:
-1. เปิดแต่ละหน้าทั้ง 3 ขนาดจอ ถ่าย screenshot เก็บปัญหาที่เจอจริงก่อน (ไม่เดาแก้ล่วงหน้า)
-2. แก้ `CartAside.tsx` (หน้า Shop) ที่รู้อยู่แล้วว่าล้นขอบมือถือ — ทำก่อนเพราะเป็นปัญหาที่ยืนยันแล้ว
-3. แก้หน้า Checkout ตามปัญหาที่เจอจริงจากขั้นตอนที่ 1
-4. แก้หน้า Account/Profile ตามปัญหาที่เจอจริง
-5. แก้หน้า Login/Register ตามปัญหาที่เจอจริง
-6. แก้หน้า Order-History ตามปัญหาที่เจอจริง
-7. แก้ส่วนกริดสินค้า/filter ของหน้า Shop (ถ้ามีปัญหา) + Footer (ถ้ามีปัญหา)
-8. ตรวจสอบ Admin pages เบื้องต้นที่ 768px/1024px (priority ต่ำสุด ทำถ้ามีเวลาเหลือ)
-9. ทดสอบซ้ำทุกหน้าที่แก้ทั้ง 3 ขนาดจอ + เช็คว่าจอกว้าง desktop เดิม (≥1280px) ไม่กระทบ ก่อนรายงานผู้ใช้และรอ confirm ก่อน commit/push ตามกติกา B
-
-**หมายเหตุ**: ทั้ง 2 ส่วน (ความเร็ว + responsive) จะทำแยกกันคนละรอบ ไม่ทำพร้อมกันในการแก้ไขเดียว เพื่อให้ตรวจสอบง่ายว่าอะไรกระทบจากอะไร ตามกติกา B — เริ่มจากขั้นตอนวินิจฉัยจริงทันทีที่ต่อเครื่องผู้ใช้ได้อีกครั้ง
-</content>
+ดูสรุปผลลัพธ์เต็มในหัวข้อ "🔜 ขั้นต่อไปที่แนะนำ" ด้านบนสุด (ย้ายไปรวมไว้ที่นั่นเพื่อไม่ให้ซ้ำซ้อน) — commit `b49064e` (ความเร็ว) + `e0d9ea2` (responsive) push ขึ้น GitHub แล้วทั้งคู่ ยังไม่ได้ตรวจสอบผลบน production หลัง deploy รอบนี้

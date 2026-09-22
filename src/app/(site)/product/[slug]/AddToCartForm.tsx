@@ -3,7 +3,7 @@
 import { useActionState, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import QuantityStepper from "@/components/QuantityStepper";
-import { addToCartAction, type CartActionState } from "@/lib/actions/cart";
+import { addToCartAction, buyNowAction, type CartActionState } from "@/lib/actions/cart";
 
 const initialState: CartActionState = null;
 
@@ -16,6 +16,7 @@ export default function AddToCartForm({
 }) {
   const [quantity, setQuantity] = useState(1);
   const [state, formAction, isPending] = useActionState(addToCartAction, initialState);
+  const [buyState, buyNowFormAction, isBuyPending] = useActionState(buyNowAction, initialState);
   const inStock = stockQuantity > 0;
 
   return (
@@ -27,25 +28,27 @@ export default function AddToCartForm({
         <QuantityStepper max={Math.max(stockQuantity, 1)} onChange={setQuantity} />
         <motion.button
           type="submit"
-          disabled={!inStock || isPending}
+          disabled={!inStock || isPending || isBuyPending}
           whileHover={inStock ? { scale: 1.03 } : undefined}
           whileTap={inStock ? { scale: 0.95 } : undefined}
           className="rounded-lg border border-border px-6 py-2.5 text-sm font-medium transition-colors hover:bg-surface disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isPending ? "กำลังเพิ่ม..." : "เพิ่มลงตะกร้า"}
         </motion.button>
-        <button
-          type="button"
-          disabled
-          title="เปิดใช้งานหลังเชื่อมระบบชำระเงิน (ขั้นตอนถัดไป)"
-          className="cursor-not-allowed rounded-lg bg-primary/50 px-6 py-2.5 text-sm font-medium text-white"
+        <motion.button
+          type="submit"
+          formAction={buyNowFormAction}
+          disabled={!inStock || isPending || isBuyPending}
+          whileHover={inStock ? { scale: 1.03 } : undefined}
+          whileTap={inStock ? { scale: 0.95 } : undefined}
+          className="rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
         >
-          ซื้อทันที
-        </button>
+          {isBuyPending ? "กำลังไปหน้าชำระเงิน..." : "ซื้อทันที"}
+        </motion.button>
       </div>
 
       <AnimatePresence mode="wait">
-        {state?.error && (
+        {(state?.error || buyState?.error) && (
           <motion.p
             key="error"
             initial={{ opacity: 0, y: -4 }}
@@ -53,7 +56,7 @@ export default function AddToCartForm({
             exit={{ opacity: 0, y: -4 }}
             className="rounded-lg border border-[color:var(--color-status-cancelled)]/30 bg-surface px-3.5 py-2.5 text-sm text-[color:var(--color-status-cancelled)]"
           >
-            {state.error}
+            {state?.error || buyState?.error}
           </motion.p>
         )}
         {state?.success && (

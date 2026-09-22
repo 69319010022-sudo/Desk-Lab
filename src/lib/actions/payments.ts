@@ -139,6 +139,9 @@ export async function checkPromptPayStatusAction(orderId: number): Promise<Payme
       revalidatePath(`/checkout/promptpay/${orderId}`);
       revalidatePath("/account/orders");
       revalidatePath(`/account/orders/${orderId}`);
+      revalidatePath("/admin/dashboard");
+      revalidatePath("/admin/orders");
+      revalidatePath(`/admin/orders/${orderId}`);
     } else if (charge.status === "failed" || charge.status === "expired") {
       await serviceClient.from("payments").update({ payment_status: "failed" }).eq("id", payment.id);
 
