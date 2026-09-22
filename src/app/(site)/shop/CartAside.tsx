@@ -35,7 +35,10 @@ export default function CartAside({ cart }: { cart: CartData }) {
   );
 
   return (
-    <aside className="cart-slide-in flex w-[340px] shrink-0 flex-col gap-[16px]">
+    // เดิม w-[340px] shrink-0 ตายตัว ทำให้ล้นจอตอนหน้าจอแคบกว่า 1024px (มือถือ/แท็บเล็ต)
+    // เพราะ parent (shop/page.tsx) เป็น flex row ปกติ — ให้เต็มความกว้างก่อน แล้วค่อยจำกัด
+    // ที่ 340px ตอน lg: ขึ้นไป ให้ตรงกับจุดที่ shop/page.tsx สลับเป็น flex-row
+    <aside className="cart-slide-in flex w-full flex-col gap-[16px] lg:w-[340px] lg:shrink-0">
       <div className="rounded-[12px] border border-subtle bg-background p-[18px]">
         <div className="mb-[12px] flex items-center justify-between">
           <span className="text-[11px] font-medium uppercase tracking-[1.2px] text-faint">

@@ -26,7 +26,9 @@ export default async function ShopPage() {
   const categoryNameById = new Map(categories.map((c) => [c.id, c.name]));
 
   return (
-    <div className="flex gap-[24px] px-[28px] pb-[28px] pt-[24px]">
+    // เดิมเป็น flex row ตายตัว ทำให้ CartAside (w-[340px] คงที่) ไปเบียดกริดสินค้าจนแตก
+    // บนมือถือ/แท็บเล็ต (< 1024px) — สลับเป็น flex-col ก่อนแล้วค่อยขึ้น row ตอน lg: ขึ้นไป
+    <div className="flex flex-col gap-[24px] px-4 pb-[28px] pt-[24px] lg:flex-row lg:px-[28px]">
       <div className="min-w-0 flex-1">
         <Suspense fallback={null}>
           <ShopCatalog

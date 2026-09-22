@@ -50,7 +50,9 @@ export default async function ProductDetailPage(
   const inStock = product.stockQuantity > 0;
 
   return (
-    <div className="flex flex-col gap-[40px] px-[28px] pb-[32px] pt-[24px]">
+    // px-[28px] ตายตัวกินพื้นที่จอมือถือเกินจำเป็น — ปรับให้เหลือ px-4 บนมือถือ/แท็บเล็ต
+    // แล้วค่อยกลับไป px-[28px] ตอน lg: ขึ้นไป ให้ตรงกับ Home/Shop/Cart/Checkout
+    <div className="flex flex-col gap-[40px] px-4 pb-[32px] pt-[24px] lg:px-[28px]">
       <div className="grid grid-cols-1 gap-[32px] lg:grid-cols-[1fr_420px]">
         <ProductGallery productName={product.name} images={product.images} />
 

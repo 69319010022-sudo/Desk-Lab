@@ -3,7 +3,7 @@
 // Next.js App Router ระหว่างรอ Server Component โหลดเสร็จ)
 export default function ShopLoading() {
   return (
-    <div className="flex animate-pulse gap-[24px] px-[28px] pb-[28px] pt-[24px]">
+    <div className="flex animate-pulse flex-col gap-[24px] px-4 pb-[28px] pt-[24px] lg:flex-row lg:px-[28px]">
       <div className="min-w-0 flex-1">
         <div className="mb-4 h-9 w-64 rounded-[8px] bg-sunken" />
         <div className="mb-6 flex gap-2">
@@ -21,7 +21,7 @@ export default function ShopLoading() {
           ))}
         </div>
       </div>
-      <div className="hidden w-[280px] shrink-0 rounded-[12px] border border-subtle bg-background p-4 lg:block">
+      <div className="w-full rounded-[12px] border border-subtle bg-background p-4 lg:w-[280px] lg:shrink-0">
         <div className="mb-4 h-5 w-32 rounded bg-sunken" />
         <div className="h-24 rounded bg-sunken" />
       </div>

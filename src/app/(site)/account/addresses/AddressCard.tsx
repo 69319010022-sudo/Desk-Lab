@@ -117,8 +117,10 @@ export default function AddressCard({ address }: { address: Address }) {
     .join(" ");
 
   return (
+    // เดิม div ซ้ายไม่มี min-w-0 ทำให้ที่อยู่ยาวๆ ดันการ์ดกว้างเกินจอมือถือได้ (flex item
+    // default คือ min-width:auto) — เพิ่ม min-w-0 ให้ข้อความตัดบรรทัดแทนการดันล้นจอ
     <div className="flex items-start justify-between gap-4 rounded-xl border border-border p-5">
-      <div>
+      <div className="min-w-0">
         <div className="flex items-center gap-2">
           <p className="text-sm font-semibold">{address.label || "ที่อยู่"}</p>
           {address.isDefault && (

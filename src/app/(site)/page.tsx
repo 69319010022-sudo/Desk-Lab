@@ -26,7 +26,9 @@ export default async function HomePage() {
     .slice(0, 5);
 
   return (
-    <div className="flex flex-col gap-[28px] px-[28px] pb-[32px] pt-[24px]">
+    // px-[28px] ตายตัวกินพื้นที่จอมือถือเกินจำเป็น — ปรับให้เหลือ px-4 บนมือถือ/แท็บเล็ต
+    // แล้วค่อยกลับไป px-[28px] ตอน lg: ขึ้นไป ให้ตรงกับ Shop/Cart/Checkout ที่ปรับไปแล้ว
+    <div className="flex flex-col gap-[28px] px-4 pb-[32px] pt-[24px] lg:px-[28px]">
       <HeroSection productCount={products.length} />
       <CategoryRow categories={topCategories} />
       <FeaturedGrid products={featured} categoryNameById={categoryNameById} />

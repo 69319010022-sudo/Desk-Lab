@@ -2,7 +2,7 @@
 // ของ ProductDetailPage เลย เป็นแค่ fallback UI ระหว่างรอโหลด
 export default function ProductDetailLoading() {
   return (
-    <div className="flex animate-pulse flex-col gap-[40px] px-[28px] pb-[32px] pt-[24px]">
+    <div className="flex animate-pulse flex-col gap-[40px] px-4 pb-[32px] pt-[24px] lg:px-[28px]">
       <div className="grid grid-cols-1 gap-[32px] lg:grid-cols-[1fr_420px]">
         <div className="mx-auto flex w-full max-w-[480px] flex-col gap-3">
           <div className="aspect-square rounded-[12px] bg-sunken" />

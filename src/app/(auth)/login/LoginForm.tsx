@@ -31,7 +31,9 @@ export default function LoginForm({
         </p>
       </div>
 
-      <div className="w-[400px] rounded-[14px] border border-subtle bg-background p-10">
+      {/* เดิม w-[400px] ตายตัว ล้นจอบนมือถือ (375px) เพราะการ์ดกว้างกว่าจอเอง — ใช้ w-full
+          แล้วจำกัดสูงสุดที่ 400px แทน จะได้เต็มความกว้างบนมือถือแต่ไม่ขยายเกิน 400px บนจอใหญ่ */}
+      <div className="w-full max-w-[400px] rounded-[14px] border border-subtle bg-background p-10">
         <div className="mb-6">
           <h2 className="text-[24px] font-semibold tracking-[-0.2px] text-ink">เข้าสู่ระบบ</h2>
           <p className="mt-2 text-[14px] text-muted">ยินดีต้อนรับกลับมาที่ DeskLab</p>

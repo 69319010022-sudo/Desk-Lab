@@ -19,7 +19,10 @@ export default async function CheckoutPage() {
   const [addresses, cart] = await Promise.all([getAddresses(), getCart()]);
 
   return (
-    <div className="flex flex-col gap-6 px-[28px] pb-[32px] pt-[24px]">
+    // px-[28px] ตายตัวกินพื้นที่หน้าจอมือถือเยอะเกินไป — ลดเหลือ px-4 บนมือถือ/แท็บเล็ต
+    // แล้วค่อยกลับไป px-[28px] ตอน lg: ขึ้นไป ให้ตรงกับ Home/Shop/Cart ที่ปรับไปแล้ว
+    // (ฟอร์ม CheckoutForm.tsx เองเป็น flex-col lg:flex-row/w-full lg:w-80 อยู่แล้ว ไม่แตะ)
+    <div className="flex flex-col gap-6 px-4 pb-[32px] pt-[24px] lg:px-[28px]">
       <div className="flex items-center gap-3">
         <BackButton />
         <h1 className="text-[24px] font-semibold text-ink">ชำระเงิน</h1>

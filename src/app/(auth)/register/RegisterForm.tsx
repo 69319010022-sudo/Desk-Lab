@@ -23,7 +23,8 @@ export default function RegisterForm() {
         <p className="mt-2 text-[14px] text-muted">สร้างบัญชีใหม่เพื่อเริ่มช้อปกับ DeskLab</p>
       </div>
 
-      <div className="w-[400px] rounded-[14px] border border-subtle bg-background p-10">
+      {/* เดิม w-[400px] ตายตัว ล้นจอบนมือถือ (375px) เหมือน LoginForm.tsx — แก้แบบเดียวกัน */}
+      <div className="w-full max-w-[400px] rounded-[14px] border border-subtle bg-background p-10">
         <div className="mb-6">
           <h2 className="text-[24px] font-semibold tracking-[-0.2px] text-ink">สมัครสมาชิก</h2>
           <p className="mt-2 text-[14px] text-muted">ใช้เวลาไม่ถึงนาที เริ่มช้อปได้ทันที</p>
