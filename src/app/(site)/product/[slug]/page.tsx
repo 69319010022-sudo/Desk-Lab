@@ -34,11 +34,15 @@ export default async function ProductDetailPage(
   props: PageProps<"/product/[slug]">,
 ) {
   const { slug } = await props.params;
-  const product = await getProductBySlug(slug);
+  // เดิมดึง getProductBySlug ก่อนแล้วค่อยยิง getCategories ต่อทีหลัง (เรียงต่อกันทั้งที่
+  // getCategories ไม่ได้ต้องพึ่งข้อมูลสินค้าเลย) — ยิงพร้อมกันแทนเพื่อลดเวลารอ
+  const [product, categories] = await Promise.all([
+    getProductBySlug(slug),
+    getCategories(),
+  ]);
   if (!product) notFound();
 
-  const [categories, productReviews, related] = await Promise.all([
-    getCategories(),
+  const [productReviews, related] = await Promise.all([
     getReviewsForProduct(product.id),
     getRelatedProducts(product),
   ]);
