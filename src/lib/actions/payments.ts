@@ -32,9 +32,22 @@ async function assertOwnOrder(orderId: number): Promise<{ userId: string; totalA
   return { userId: order.user_id, totalAmount: Number(order.total_amount) };
 }
 
+// serverNow: เวลาฝั่งเซิร์ฟเวอร์ (epoch ms) ตอนตอบกลับ — ให้ฝั่งไคลเอนต์ชดเชยนาฬิกาเครื่องลูกค้าที่
+// ตั้งเวลาไม่ตรง (เคยเจอเครื่องช้า/เร็วเป็นชั่วโมงจนนับถอยหลังขึ้น 954 นาที)
 export type PromptPayQrResult =
-  | { ok: true; qrImageDataUri: string | null; status: OpnChargeStatus; expiresAt: string | null }
+  | {
+      ok: true;
+      qrImageDataUri: string | null;
+      status: OpnChargeStatus;
+      expiresAt: string | null;
+      serverNow: number;
+    }
   | { ok: false; error: string };
+
+// ให้ไคลเอนต์ขอเวลาปัจจุบันของเซิร์ฟเวอร์ เพื่อคำนวณส่วนต่างนาฬิกาใหม่ทุกครั้งที่กลับมาที่หน้าชำระเงิน
+export async function getServerTimeAction(): Promise<number> {
+  return Date.now();
+}
 
 // สร้าง (หรือดึงของเดิมกลับมา) QR พร้อมเพย์จริงสำหรับออเดอร์นี้
 // เรียกตอนโหลดหน้า /checkout/promptpay/[orderId] ครั้งแรก และตอนกด "สร้าง QR ใหม่"/"ลองสร้าง QR อีกครั้ง"
@@ -51,7 +64,7 @@ export async function getOrCreatePromptPayQrAction(orderId: number): Promise<Pro
 
   if (!payment) return { ok: false, error: "ไม่พบรายการชำระเงินของคำสั่งซื้อนี้" };
   if (payment.payment_status === "success") {
-    return { ok: true, qrImageDataUri: null, status: "successful", expiresAt: null };
+    return { ok: true, qrImageDataUri: null, status: "successful", expiresAt: null, serverNow: Date.now() };
   }
 
   try {
@@ -68,6 +81,7 @@ export async function getOrCreatePromptPayQrAction(orderId: number): Promise<Pro
           qrImageDataUri: existing.qrImageDataUri,
           status: existing.status,
           expiresAt: existing.expiresAt,
+          serverNow: Date.now(),
         };
       }
       // หมดอายุจริงตามเวลาของ Opn แล้ว (แม้ status ที่ Opn ยังไม่อัปเดตเป็น expired) — เคลียร์สถานะ
@@ -86,7 +100,13 @@ export async function getOrCreatePromptPayQrAction(orderId: number): Promise<Pro
       .from("payments")
       .update({ transaction_ref: charge.chargeId, payment_status: "pending" })
       .eq("id", payment.id);
-    return { ok: true, qrImageDataUri: charge.qrImageDataUri, status: charge.status, expiresAt: charge.expiresAt };
+    return {
+      ok: true,
+      qrImageDataUri: charge.qrImageDataUri,
+      status: charge.status,
+      expiresAt: charge.expiresAt,
+      serverNow: Date.now(),
+    };
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : "สร้าง QR ไม่สำเร็จ" };
   }

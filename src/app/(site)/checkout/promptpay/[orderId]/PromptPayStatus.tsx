@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import {
   checkPromptPayStatusAction,
   getOrCreatePromptPayQrAction,
+  getServerTimeAction,
   type PaymentStatusResult,
   type PromptPayQrResult,
 } from "@/lib/actions/payments";
@@ -16,12 +17,10 @@ function formatCountdown(totalSeconds: number) {
 }
 
 // นับถอยหลังจนถึงเวลาจริง (epoch ms) แทนการลดทีละ 1 จากค่าคงที่ — ทำให้เวลานับถอยหลังตรงกับ
-// เวลาหมดอายุจริงของ Opn เสมอ ไม่ว่าจะโหลดหน้าซ้ำ สลับแท็บ หรือเครื่องหน่วงแค่ไหนก็ตาม
-// จำกัดไม่เกิน 30 นาทีเสมอ กันกรณีนาฬิกาเครื่องลูกค้า/เซิร์ฟเวอร์ไม่ตรงกันจนนับถอยหลังยาวเกินจริง
-const MAX_COUNTDOWN_SECONDS = 30 * 60;
-
-function secondsUntil(target: number) {
-  return Math.min(MAX_COUNTDOWN_SECONDS, Math.max(0, Math.round((target - Date.now()) / 1000)));
+// เวลาหมดอายุจริงของ Opn เสมอ ไม่ว่าจะโหลดหน้าซ้ำ สลับแท็บ ไปหน้าอื่นแล้วกลับมา หรือเครื่องหน่วงแค่ไหน
+// clockOffset = เวลาเซิร์ฟเวอร์ - เวลาเครื่องลูกค้า ใช้ชดเชยกรณีนาฬิกาเครื่องลูกค้าตั้งไม่ตรง
+function secondsUntil(target: number, clockOffset: number) {
+  return Math.max(0, Math.round((target - (Date.now() + clockOffset)) / 1000));
 }
 
 export default function PromptPayStatus({
@@ -42,8 +41,39 @@ export default function PromptPayStatus({
   const [regenerating, startRegenerating] = useTransition();
   const syncedExpiryRef = useRef(false);
 
+  // ค่าเริ่มต้นคำนวณจาก serverNow ที่มากับหน้า แล้วซิงก์ใหม่กับเซิร์ฟเวอร์ตอน mount และทุกครั้งที่กลับมา
+  // ที่แท็บนี้ (หน้าอาจถูกดึงจากแคชของ router/เบราว์เซอร์ ทำให้ serverNow เดิมเก่าไปแล้ว)
+  const [clockOffset, setClockOffset] = useState(() =>
+    initialResult.ok ? initialResult.serverNow - Date.now() : 0,
+  );
+
   const isPendingQr = result.ok && result.status === "pending";
-  const secondsLeft = expiresAtMs ? secondsUntil(expiresAtMs) : 0;
+  const secondsLeft = expiresAtMs ? secondsUntil(expiresAtMs, clockOffset) : 0;
+
+  useEffect(() => {
+    let cancelled = false;
+    function syncClock() {
+      const sentAt = Date.now();
+      getServerTimeAction()
+        .then((serverNow) => {
+          if (cancelled) return;
+          const receivedAt = Date.now();
+          setClockOffset(serverNow - (sentAt + receivedAt) / 2);
+        })
+        .catch(() => {});
+    }
+    function onVisible() {
+      if (document.visibilityState === "visible") syncClock();
+    }
+    syncClock();
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("pageshow", syncClock);
+    return () => {
+      cancelled = true;
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("pageshow", syncClock);
+    };
+  }, []);
 
   useEffect(() => {
     if (!isPendingQr || !expiresAtMs) return;
@@ -125,7 +155,7 @@ export default function PromptPayStatus({
       {!expired && (
         <p className="text-sm text-muted">
           กรุณาชำระเงินภายใน{" "}
-          <span className="font-semibold text-[color:var(--color-status-cancelled)]">
+          <span suppressHydrationWarning className="font-semibold text-[color:var(--color-status-cancelled)]">
             {formatCountdown(secondsLeft)}
           </span>{" "}
           นาที
@@ -146,7 +176,7 @@ export default function PromptPayStatus({
                 if (!r.ok) {
                   setStatusMessage(r.error);
                 } else if (r.status === "successful") {
-                  setResult({ ok: true, qrImageDataUri: null, status: "successful", expiresAt: null });
+                  setResult({ ...result, qrImageDataUri: null, status: "successful", expiresAt: null });
                 } else if (r.status === "pending") {
                   setStatusMessage("ยังไม่พบการชำระเงิน กรุณาสแกนจ่ายแล้วลองตรวจสอบอีกครั้ง");
                 } else {

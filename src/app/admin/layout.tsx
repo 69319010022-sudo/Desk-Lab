@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import AdminRail from "@/components/admin/AdminRail";
+import AdminRealtimeRefresh from "@/components/admin/AdminRealtimeRefresh";
 import AdminTopBar from "@/components/admin/AdminTopBar";
 import { getCurrentUser } from "@/lib/data/auth";
 
@@ -21,6 +22,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   return (
     <div className="flex min-h-screen">
       {/* print:hidden — ซ่อน Sidebar/TopBar ตอนพิมพ์ (ใช้กับหน้าใบเสร็จ ขั้นตอนที่ 7) */}
+      <AdminRealtimeRefresh />
       <div className="print:hidden">
         <AdminRail />
       </div>
